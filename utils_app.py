@@ -5,6 +5,10 @@ BASECARD = Image.open("docs/images/basic-template.png")
 
 WIDTH, LENGTH = BASECARD.size
 FONT, FONTHEIGHT = ImageFont.truetype("docs/font/Ravise-Regular.ttf", 45), 45
+FONT_skill, FONTHEIGHT_skill = (
+    ImageFont.truetype("docs/font/Ravise-Regular.ttf", 50),
+    50,
+)
 FONT_subtitle = ImageFont.truetype("docs/font/Bogart-Regular-trial.ttf", 24)
 # FONT, FONTHEIGHT = ImageFont.truetype("docs/font/Bogart-Semibold-trial.ttf", 45), 30
 offset = 80
@@ -15,13 +19,13 @@ def add_illustration(card: Image, illustration):
     ratio = y / x
 
     size = st.sidebar.slider(
-        "Changer la taille de la photo", min_value=20, max_value=200, value=100
+        "Changer la taille de la photo", min_value=20, max_value=300, value=100
     )
     horizon = st.sidebar.slider(
-        "Déplacer photo horizontalement", min_value=-200, max_value=100, value=0
+        "Déplacer photo horizontalement", min_value=-400, max_value=100, value=0
     )
     vertical = st.sidebar.slider(
-        "Déplacer photo verticalement", min_value=-200, max_value=100, value=0
+        "Déplacer photo verticalement", min_value=-400, max_value=100, value=0
     )
 
     resized_illustration = illustration.resize(
@@ -38,7 +42,7 @@ def add_illustration(card: Image, illustration):
 
 def add_bandeau(card: Image):
     bandeau_couleur = st.sidebar.selectbox(
-        "Couleur du bandeau", ("Gris", "Rouge", "Bleu", "Violet")
+        "Couleur du bandeau", ("Gris", "Rouge", "Bleu", "Violet", "Jaune")
     )
     bandeau = Image.open(f"docs/images/bandeau-{bandeau_couleur.lower()}.png")
 
@@ -69,6 +73,126 @@ def add_card_type(card: Image, draw: ImageDraw):
         draw.text(((WIDTH - w) / 2, 94), text=text, fill="white", font=FONT_subtitle)
 
 
+def add_green_token(card: Image, draw: ImageDraw):
+    green_token = st.sidebar.checkbox("Jeton vert", value=False)
+    if green_token:
+        green_logo = Image.open("docs/images/jeton_vert.png")
+        card.paste(green_logo, (0, 0), green_logo)
+
+        value_green_token = st.sidebar.select_slider(
+            "Valeur du jeton vert", options=[1, 2, 3, 4, 5, 6, 7, 8, "?"], value=1
+        )
+
+        text_green_token = str(value_green_token)
+
+        w, _ = draw.textsize(text_green_token, font=FONT)
+        draw.text(
+            (WIDTH - w / 2 - 59 - 1, FONTHEIGHT - 10 - 1),
+            text=text_green_token,
+            fill=(0, 0, 0, 128),
+            font=FONT,
+        )
+        draw.text(
+            (WIDTH - w / 2 - 59, FONTHEIGHT - 10),
+            text=text_green_token,
+            fill="white",
+            font=FONT,
+        )
+
+
+def add_left_items(card: Image, draw: ImageDraw):
+    ressource_dict = {
+        "Courage": "arm",
+        "Courage +": "arm-plus",
+        "Botte": "boot",
+        "Botte +": "boot-plus",
+        "Compétence": "skill",
+    }
+
+    ressource_1 = st.sidebar.checkbox("Ressource 1", value=False)
+    if ressource_1:
+        first_ressource = st.sidebar.selectbox(
+            "Ressource 1", ("Compétence", "Courage", "Botte")
+        )
+        first_rsrc = Image.open(
+            f"docs/images/n1-{ressource_dict.get(first_ressource)}.png"
+        )
+
+        if first_ressource == "Compétence":
+            value_skill = st.sidebar.select_slider(
+                "Points de compétence", options=["0+", 1, 2, 3, 4], value=1
+            )
+
+            if value_skill == "0+":
+                first_rsrc = Image.open(
+                    f"docs/images/n1-{ressource_dict.get(first_ressource)}-plus.png"
+                )
+                value_skill = 0
+
+    ressource_2 = st.sidebar.checkbox("Ressource 2", value=False)
+    if ressource_2:
+        second_ressource = st.sidebar.selectbox(
+            "Ressource 2", ("Courage", "Courage +", "Botte")
+        )
+        scd_rsrc = Image.open(
+            f"docs/images/n2-{ressource_dict.get(second_ressource)}.png"
+        )
+
+        card.paste(scd_rsrc, (0, 0), scd_rsrc)
+
+    ressource_3 = st.sidebar.checkbox("Ressource 3", value=False)
+    if ressource_3:
+        third_ressource = st.sidebar.selectbox(
+            "Ressource 3", ("Courage", "Botte", "Botte +")
+        )
+        third_rsrc = Image.open(
+            f"docs/images/n3-{ressource_dict.get(third_ressource)}.png"
+        )
+
+        card.paste(third_rsrc, (0, 0), third_rsrc)
+
+    if ressource_1:
+        card.paste(first_rsrc, (0, 0), first_rsrc)
+
+        if first_ressource == "Compétence":
+            text_skill = str(value_skill)
+
+            w, _ = draw.textsize(text_skill, font=FONT_skill)
+            draw.text(
+                (72 - w / 2, FONTHEIGHT_skill + 90),
+                text=text_skill,
+                fill=(0, 0, 0, 255),
+                font=FONT_skill,
+            )
+
+
+def add_cost(card: Image, draw: ImageDraw):
+    cost = st.sidebar.checkbox("Ajouter un coût", value=False)
+    if cost:
+        cost_logo = Image.open("docs/images/cost-corner.png")
+        card.paste(cost_logo, (0, 0), cost_logo)
+
+        cost_value = st.sidebar.slider("Coût", min_value=1, max_value=8, value=1)
+
+        text_cost = str(cost_value)
+
+        w, _ = draw.textsize(text_cost, font=FONT)
+        draw.text(
+            (WIDTH - w / 2 - 53 - 1, LENGTH - FONTHEIGHT - 25),
+            text=text_cost,
+            fill=(0, 0, 0, 128),
+            font=FONT,
+        )
+        draw.text(
+            (WIDTH - w / 2 - 53, LENGTH - FONTHEIGHT - 25),
+            text=text_cost,
+            fill="white",
+            font=FONT,
+        )
+
+    pass
+
+
 def make_card(illustration):
     card = BASECARD.copy()
     draw = ImageDraw.Draw(card)
@@ -80,9 +204,13 @@ def make_card(illustration):
 
     add_illustration(card, illustration)
     add_bandeau(card)
-    add_person_corner(card)
     add_card_name(draw)
+    add_person_corner(card)
+    add_green_token(card, draw)
     add_card_type(card, draw)
+    add_cost(card, draw)
+
+    add_left_items(card, draw)
 
     return card
 
