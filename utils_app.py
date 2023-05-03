@@ -1,6 +1,7 @@
 import streamlit as st
 from PIL import Image, ImageFont, ImageDraw
-from image_utils import ImageText # noqa
+from image_utils import ImageText  # noqa
+import textwrap
 
 BASECARD = Image.open("docs/images/basic-template.png")
 
@@ -101,7 +102,7 @@ def add_green_token(card: Image.Image, draw: ImageDraw.ImageDraw):
         )
 
 
-def add_left_items(card: Image.Image, draw: ImageDraw.ImageDraw):
+def add_left_items(card: Image.Image, draw: Image.ImageDraw):
     ressource_dict = {
         "Courage": "arm",
         "Courage +": "arm-plus",
