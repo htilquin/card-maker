@@ -1,5 +1,6 @@
 import streamlit as st
 from PIL import Image, ImageFont, ImageDraw
+from image_utils import ImageText # noqa
 
 BASECARD = Image.open("docs/images/basic-template.png")
 
@@ -14,7 +15,7 @@ FONT_subtitle = ImageFont.truetype("docs/font/Bogart-Regular-trial.ttf", 24)
 offset = 80
 
 
-def add_illustration(card: Image, illustration):
+def add_illustration(card: Image.Image, illustration):
     x, y = illustration.size
     ratio = y / x
 
@@ -40,7 +41,7 @@ def add_illustration(card: Image, illustration):
     card.paste(BASECARD, (0, 0), BASECARD)
 
 
-def add_bandeau(card: Image):
+def add_bandeau(card: Image.Image):
     bandeau_couleur = st.sidebar.selectbox(
         "Couleur du bandeau", ("Gris", "Rouge", "Bleu", "Violet", "Jaune")
     )
@@ -49,21 +50,21 @@ def add_bandeau(card: Image):
     card.paste(bandeau, (0, 0), bandeau)
 
 
-def add_person_corner(card: Image):
+def add_person_corner(card: Image.Image):
     person_corner = st.sidebar.checkbox("Coin 'personnage'", value=False)
     if person_corner:
         person_logo = Image.open("docs/images/person-corner.png")
         card.paste(person_logo, (0, 0), person_logo)
 
 
-def add_card_name(draw: ImageDraw):
+def add_card_name(draw: ImageDraw.ImageDraw):
     text = st.sidebar.text_input("Nom de la  carte", value="Carte")
     w, _ = draw.textsize(text, font=FONT)
     draw.text(((WIDTH - w) / 2 - 1, FONTHEIGHT - 1), text=text, fill="black", font=FONT)
     draw.text(((WIDTH - w) / 2, FONTHEIGHT), text=text, fill="white", font=FONT)
 
 
-def add_card_type(card: Image, draw: ImageDraw):
+def add_card_type(card: Image.Image, draw: ImageDraw.ImageDraw):
     card_type = st.sidebar.checkbox("Sous-titre du bandeau", value=False)
     if card_type:
         subtitle = Image.open("docs/images/sous-titre.png")
@@ -73,7 +74,7 @@ def add_card_type(card: Image, draw: ImageDraw):
         draw.text(((WIDTH - w) / 2, 94), text=text, fill="white", font=FONT_subtitle)
 
 
-def add_green_token(card: Image, draw: ImageDraw):
+def add_green_token(card: Image.Image, draw: ImageDraw.ImageDraw):
     green_token = st.sidebar.checkbox("Jeton vert", value=False)
     if green_token:
         green_logo = Image.open("docs/images/jeton_vert.png")
@@ -100,7 +101,7 @@ def add_green_token(card: Image, draw: ImageDraw):
         )
 
 
-def add_left_items(card: Image, draw: ImageDraw):
+def add_left_items(card: Image.Image, draw: ImageDraw.ImageDraw):
     ressource_dict = {
         "Courage": "arm",
         "Courage +": "arm-plus",
@@ -166,7 +167,7 @@ def add_left_items(card: Image, draw: ImageDraw):
             )
 
 
-def add_cost(card: Image, draw: ImageDraw):
+def add_cost(card: Image.Image, draw: ImageDraw.ImageDraw):
     cost = st.sidebar.checkbox("Ajouter un coût", value=False)
     if cost:
         cost_logo = Image.open("docs/images/cost-corner.png")
@@ -190,7 +191,13 @@ def add_cost(card: Image, draw: ImageDraw):
             font=FONT,
         )
 
-    pass
+
+def add_text(card: Image.Image, draw: ImageDraw.ImageDraw):
+    text = st.sidebar.text_input("Texte principal de la carte", value="Votre texte ICI")
+    lines = textwrap.wrap(text, width=40)
+    w, h = draw.textsize(lines, font=FONT_subtitle)
+    y_text = h
+    draw.text(((WIDTH - w) / 2, 700 - h), text=lines, fill="black", font=FONT_subtitle)
 
 
 def make_card(illustration):
@@ -211,6 +218,8 @@ def make_card(illustration):
     add_cost(card, draw)
 
     add_left_items(card, draw)
+
+    add_text(card, draw)
 
     return card
 
