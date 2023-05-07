@@ -1,7 +1,5 @@
 import streamlit as st
 from PIL import Image, ImageFont, ImageDraw
-from image_utils import ImageText  # noqa
-import textwrap
 
 BASECARD = Image.open("docs/images/basic-template.png")
 
