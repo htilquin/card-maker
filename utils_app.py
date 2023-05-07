@@ -5,15 +5,26 @@ import textwrap
 
 BASECARD = Image.open("docs/images/basic-template.png")
 
-WIDTH, LENGTH = BASECARD.size
-FONT, FONTHEIGHT = ImageFont.truetype("docs/font/Ravise-Regular.ttf", 45), 45
-FONT_skill, FONTHEIGHT_skill = (
-    ImageFont.truetype("docs/font/Ravise-Regular.ttf", 50),
-    50,
+WIDTH, HEIGHT = BASECARD.size
+# mermaid_font = ImageFont.truetype("docs/font/Mermaid1001.ttf", 45)
+ravise_34_font = ImageFont.truetype("docs/font/Ravise-Regular.ttf", 34)
+ravise_45_font = ImageFont.truetype("docs/font/Ravise-Regular.ttf", 45)
+ravise_50_font = ImageFont.truetype("docs/font/Ravise-Regular.ttf", 50)
+bogart_font = ImageFont.truetype("docs/font/Bogart-Regular-trial.ttf", 26)
+libertine_font_36 = ImageFont.truetype(
+    "docs/font/LinuxLibertine/LinLibertine_RB.ttf", 36
 )
-FONT_subtitle = ImageFont.truetype("docs/font/Bogart-Regular-trial.ttf", 24)
-# FONT, FONTHEIGHT = ImageFont.truetype("docs/font/Bogart-Semibold-trial.ttf", 45), 30
+libertine_font_28 = ImageFont.truetype(
+    "docs/font/LinuxLibertine/LinLibertine_RI.ttf", 28
+)
 offset = 80
+
+FONT_CARD_NAME = ravise_45_font
+FONT_SKILL = ravise_50_font
+FONT_TOKEN = ravise_45_font
+FONT_CARD_TYPE = bogart_font
+FONT_CARD_TEXT = ravise_34_font
+FONT_CARD_LEGEND = libertine_font_28
 
 
 def add_illustration(card: Image.Image, illustration):
@@ -60,9 +71,14 @@ def add_person_corner(card: Image.Image):
 
 def add_card_name(draw: ImageDraw.ImageDraw):
     text = st.sidebar.text_input("Nom de la  carte", value="Carte")
-    w, _ = draw.textsize(text, font=FONT)
-    draw.text(((WIDTH - w) / 2 - 1, FONTHEIGHT - 1), text=text, fill="black", font=FONT)
-    draw.text(((WIDTH - w) / 2, FONTHEIGHT), text=text, fill="white", font=FONT)
+    w, _ = draw.textsize(text, font=FONT_CARD_NAME)
+    draw.text(
+        ((WIDTH - w) / 2 - 1, 45 - 1),
+        text=text,
+        fill="black",
+        font=FONT_CARD_NAME,
+    )
+    draw.text(((WIDTH - w) / 2, 45), text=text, fill="white", font=FONT_CARD_NAME)
 
 
 def add_card_type(card: Image.Image, draw: ImageDraw.ImageDraw):
@@ -71,8 +87,8 @@ def add_card_type(card: Image.Image, draw: ImageDraw.ImageDraw):
         subtitle = Image.open("docs/images/sous-titre.png")
         card.paste(subtitle, (0, 0), subtitle)
         text = st.sidebar.text_input("Texte sous-titre", value="Compagnon")
-        w, _ = draw.textsize(text, font=FONT_subtitle)
-        draw.text(((WIDTH - w) / 2, 94), text=text, fill="white", font=FONT_subtitle)
+        w, _ = draw.textsize(text, font=FONT_CARD_TYPE)
+        draw.text(((WIDTH - w) / 2, 94), text=text, fill="white", font=FONT_CARD_TYPE)
 
 
 def add_green_token(card: Image.Image, draw: ImageDraw.ImageDraw):
@@ -87,22 +103,22 @@ def add_green_token(card: Image.Image, draw: ImageDraw.ImageDraw):
 
         text_green_token = str(value_green_token)
 
-        w, _ = draw.textsize(text_green_token, font=FONT)
+        w, h = draw.textsize(text_green_token, font=FONT_TOKEN)
         draw.text(
-            (WIDTH - w / 2 - 59 - 1, FONTHEIGHT - 10 - 1),
+            (WIDTH - w / 2 - 59 - 1, h - 1),
             text=text_green_token,
             fill=(0, 0, 0, 128),
-            font=FONT,
+            font=FONT_TOKEN,
         )
         draw.text(
-            (WIDTH - w / 2 - 59, FONTHEIGHT - 10),
+            (WIDTH - w / 2 - 59, h),
             text=text_green_token,
             fill="white",
-            font=FONT,
+            font=FONT_TOKEN,
         )
 
 
-def add_left_items(card: Image.Image, draw: Image.ImageDraw):
+def add_left_items(card: Image.Image, draw: ImageDraw.ImageDraw):
     ressource_dict = {
         "Courage": "arm",
         "Courage +": "arm-plus",
@@ -159,12 +175,12 @@ def add_left_items(card: Image.Image, draw: Image.ImageDraw):
         if first_ressource == "Compétence":
             text_skill = str(value_skill)
 
-            w, _ = draw.textsize(text_skill, font=FONT_skill)
+            w, h = draw.textsize(text_skill, font=FONT_SKILL)
             draw.text(
-                (72 - w / 2, FONTHEIGHT_skill + 90),
+                (72 - w / 2, h / 2 + 120),
                 text=text_skill,
                 fill=(0, 0, 0, 255),
-                font=FONT_skill,
+                font=FONT_SKILL,
             )
 
 
@@ -178,27 +194,46 @@ def add_cost(card: Image.Image, draw: ImageDraw.ImageDraw):
 
         text_cost = str(cost_value)
 
-        w, _ = draw.textsize(text_cost, font=FONT)
+        w, h = draw.textsize(text_cost, font=FONT_TOKEN)
         draw.text(
-            (WIDTH - w / 2 - 53 - 1, LENGTH - FONTHEIGHT - 25),
+            (WIDTH - w / 2 - 52 - 1, HEIGHT - h / 2 - 55),
             text=text_cost,
             fill=(0, 0, 0, 128),
-            font=FONT,
+            font=FONT_TOKEN,
         )
         draw.text(
-            (WIDTH - w / 2 - 53, LENGTH - FONTHEIGHT - 25),
+            (WIDTH - w / 2 - 52, HEIGHT - h / 2 - 55),
             text=text_cost,
             fill="white",
-            font=FONT,
+            font=FONT_TOKEN,
         )
 
 
-def add_text(card: Image.Image, draw: ImageDraw.ImageDraw):
-    text = st.sidebar.text_input("Texte principal de la carte", value="Votre texte ICI")
-    lines = textwrap.wrap(text, width=40)
-    w, h = draw.textsize(lines, font=FONT_subtitle)
-    y_text = h
-    draw.text(((WIDTH - w) / 2, 700 - h), text=lines, fill="black", font=FONT_subtitle)
+def add_text(draw: ImageDraw.ImageDraw):
+    text = st.sidebar.text_area("Texte principal de la carte", value="Votre texte ICI")
+    # lines = textwrap.wrap(text, width=40)
+    w, h = draw.textsize(text, font=FONT_CARD_TEXT)
+    draw.text(
+        ((WIDTH - w) / 2, 680 - h / 2),
+        text=text,
+        align="center",
+        fill="black",
+        font=FONT_CARD_TEXT,
+        spacing=12,
+    )
+
+
+def add_subtitle(draw: ImageDraw.ImageDraw):
+    text = st.sidebar.text_area("Texte secondaire de la carte")
+    w, h = draw.textsize(text, font=FONT_CARD_LEGEND)
+    draw.text(
+        (55, HEIGHT - h - 60),
+        text=text,
+        # align="center",
+        # anchor="rm",
+        fill="black",
+        font=FONT_CARD_LEGEND,
+    )
 
 
 def make_card(illustration):
@@ -220,7 +255,8 @@ def make_card(illustration):
 
     add_left_items(card, draw)
 
-    add_text(card, draw)
+    add_text(draw)
+    add_subtitle(draw)
 
     return card
 
