@@ -15,6 +15,9 @@ libertine_font_36 = ImageFont.truetype(
 libertine_font_28 = ImageFont.truetype(
     "docs/font/LinuxLibertine/LinLibertine_RI.ttf", 28
 )
+libertine_font_24 = ImageFont.truetype(
+    "docs/font/LinuxLibertine/LinLibertine_RB.ttf", 24
+)
 offset = 80
 
 FONT_CARD_NAME = ravise_45_font
@@ -23,6 +26,7 @@ FONT_TOKEN = ravise_45_font
 FONT_CARD_TYPE = bogart_font
 FONT_CARD_TEXT = ravise_34_font
 FONT_CARD_LEGEND = libertine_font_28
+FONT_CARD_APPEAR = libertine_font_24
 
 
 def add_illustration(card: Image.Image, illustration):
@@ -223,7 +227,7 @@ def add_text(draw: ImageDraw.ImageDraw):
 
 def add_subtitle(draw: ImageDraw.ImageDraw):
     text = st.sidebar.text_area("Texte secondaire de la carte")
-    w, h = draw.textsize(text, font=FONT_CARD_LEGEND)
+    _, h = draw.textsize(text, font=FONT_CARD_LEGEND)
     draw.text(
         (55, HEIGHT - h - 60),
         text=text,
@@ -232,6 +236,23 @@ def add_subtitle(draw: ImageDraw.ImageDraw):
         fill="black",
         font=FONT_CARD_LEGEND,
     )
+
+
+def add_appear(card: Image.Image, draw: ImageDraw.ImageDraw):
+    appear = st.sidebar.checkbox("Apparition", value=False)
+    if appear:
+        appear_image = Image.open("docs/images/apparition.png")
+        card.paste(appear_image, (0, 0), appear_image)
+
+        text = st.sidebar.text_area("Texte apparition")
+        _, h = draw.textsize(text, font=FONT_CARD_APPEAR)
+        draw.text(
+            (252, 594 - h / 2),
+            text=text,
+            fill="white",
+            font=FONT_CARD_APPEAR,
+            spacing=1,
+        )
 
 
 def make_card(illustration):
@@ -246,12 +267,14 @@ def make_card(illustration):
     add_illustration(card, illustration)
     add_bandeau(card)
     add_card_name(draw)
+    add_card_type(card, draw)
     add_person_corner(card)
     add_green_token(card, draw)
-    add_card_type(card, draw)
     add_cost(card, draw)
 
     add_left_items(card, draw)
+
+    add_appear(card, draw)
 
     add_text(draw)
     add_subtitle(draw)
