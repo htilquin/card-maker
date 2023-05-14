@@ -94,13 +94,15 @@ def add_card_type(card: Image.Image, draw: ImageDraw.ImageDraw):
 
 
 def add_green_token(card: Image.Image, draw: ImageDraw.ImageDraw):
-    green_token = st.sidebar.checkbox("Jeton vert", value=False)
+    green_token = st.sidebar.checkbox("Points de victoire", value=False)
     if green_token:
         green_logo = Image.open("docs/images/jeton_vert.png")
         card.paste(green_logo, (0, 0), green_logo)
 
         value_green_token = st.sidebar.select_slider(
-            "Valeur du jeton vert", options=[1, 2, 3, 4, 5, 6, 7, 8, "?"], value=1
+            "Nombre de points de victoire",
+            options=[1, 2, 3, 4, 5, 6, 7, 8, "?"],
+            value=1,
         )
 
         text_green_token = str(value_green_token)
@@ -253,6 +255,23 @@ def add_appear(card: Image.Image, draw: ImageDraw.ImageDraw):
             font=FONT_CARD_APPEAR,
             spacing=1,
         )
+    return appear
+
+
+def add_clock(card: Image.Image, appear):
+    if not appear:
+        clock = st.sidebar.checkbox("Horloge", value=False)
+        if clock:
+            clock_image = Image.open("docs/images/clock.png")
+            card.paste(clock_image, (0, 0), clock_image)
+
+
+def add_horde(card: Image.Image, appear):
+    if not appear:
+        horde = st.sidebar.checkbox("Horde", value=False)
+        if horde:
+            horde_image = Image.open("docs/images/horde-parents.png")
+            card.paste(horde_image, (0, 0), horde_image)
 
 
 def make_card(illustration):
@@ -274,7 +293,10 @@ def make_card(illustration):
 
     add_left_items(card, draw)
 
-    add_appear(card, draw)
+    appear = add_appear(card, draw)
+
+    add_clock(card, appear)
+    add_horde(card, appear)
 
     add_text(draw)
     add_subtitle(draw)
