@@ -181,7 +181,7 @@ def add_left_items(card: Image.Image, draw: ImageDraw.ImageDraw):
 
             w, h = draw.textsize(text_skill, font=FONT_SKILL)
             draw.text(
-                (72 - w / 2, h / 2 + 120),
+                (70 - w / 2, h / 2 + 120),
                 text=text_skill,
                 fill=(0, 0, 0, 255),
                 font=FONT_SKILL,
@@ -228,7 +228,9 @@ def add_text(draw: ImageDraw.ImageDraw):
 
 
 def add_subtitle(draw: ImageDraw.ImageDraw):
-    text = st.sidebar.text_area("Texte secondaire de la carte")
+    text = st.sidebar.text_area(
+        "Texte secondaire de la carte", value=" « Citation facultative »"
+    )
     _, h = draw.textsize(text, font=FONT_CARD_LEGEND)
     draw.text(
         (55, HEIGHT - h - 60),
@@ -274,6 +276,24 @@ def add_horde(card: Image.Image, appear):
             card.paste(horde_image, (0, 0), horde_image)
 
 
+def add_danger(card: Image.Image, draw: ImageDraw.ImageDraw, appear):
+    if not appear:
+        danger = st.sidebar.checkbox("Danger", value=False)
+        if danger:
+            danger_image = Image.open("docs/images/danger.png")
+            card.paste(danger_image, (0, 0), danger_image)
+
+            text = st.sidebar.text_area("Texte danger")
+            _, h = draw.textsize(text, font=FONT_CARD_APPEAR)
+            draw.text(
+                (185, 594 - h / 2),
+                text=text,
+                fill="white",
+                font=FONT_CARD_APPEAR,
+                spacing=1,
+            )
+
+
 def make_card(illustration):
     card = BASECARD.copy()
     draw = ImageDraw.Draw(card)
@@ -294,8 +314,9 @@ def make_card(illustration):
     add_left_items(card, draw)
 
     appear = add_appear(card, draw)
+    add_danger(card, draw, appear)
 
-    add_clock(card, appear)
+    # add_clock(card, appear)
     add_horde(card, appear)
 
     add_text(draw)
