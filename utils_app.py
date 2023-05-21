@@ -57,7 +57,7 @@ def add_illustration(card: Image.Image, illustration):
 
 def add_bandeau(card: Image.Image):
     bandeau_couleur = st.sidebar.selectbox(
-        "Couleur du bandeau", ("Gris", "Rouge", "Bleu", "Violet", "Jaune")
+        "Couleur du ruban", ("Gris", "Rouge", "Bleu", "Violet", "Jaune")
     )
     bandeau = Image.open(f"docs/images/bandeau-{bandeau_couleur.lower()}.png")
 
@@ -84,7 +84,7 @@ def add_card_name(draw: ImageDraw.ImageDraw):
 
 
 def add_card_type(card: Image.Image, draw: ImageDraw.ImageDraw):
-    card_type = st.sidebar.checkbox("Sous-titre du bandeau", value=False)
+    card_type = st.sidebar.checkbox("Catégorie de la carte", value=False)
     if card_type:
         subtitle = Image.open("docs/images/sous-titre.png")
         card.paste(subtitle, (0, 0), subtitle)
@@ -260,38 +260,44 @@ def add_appear(card: Image.Image, draw: ImageDraw.ImageDraw):
     return appear
 
 
-def add_clock(card: Image.Image, appear):
-    if not appear:
-        clock = st.sidebar.checkbox("Horloge", value=False)
-        if clock:
-            clock_image = Image.open("docs/images/clock.png")
-            card.paste(clock_image, (0, 0), clock_image)
+def add_clock(card: Image.Image):
+    clock = st.sidebar.checkbox("Horloge", value=False)
+    if clock:
+        clock_image = Image.open("docs/images/clock.png")
+        card.paste(clock_image, (0, 0), clock_image)
 
 
-def add_horde(card: Image.Image, appear):
-    if not appear:
-        horde = st.sidebar.checkbox("Horde", value=False)
-        if horde:
-            horde_image = Image.open("docs/images/horde-parents.png")
-            card.paste(horde_image, (0, 0), horde_image)
+def add_horde(card: Image.Image):
+    horde = st.sidebar.checkbox("Horde", value=False)
+    if horde:
+        horde_image = Image.open("docs/images/horde-parents.png")
+        card.paste(horde_image, (0, 0), horde_image)
 
 
-def add_danger(card: Image.Image, draw: ImageDraw.ImageDraw, appear):
-    if not appear:
-        danger = st.sidebar.checkbox("Danger", value=False)
-        if danger:
-            danger_image = Image.open("docs/images/danger.png")
-            card.paste(danger_image, (0, 0), danger_image)
+def add_danger(card: Image.Image, draw: ImageDraw.ImageDraw):
+    danger = st.sidebar.checkbox("Danger", value=False)
+    if danger:
+        danger_image = Image.open("docs/images/danger.png")
+        card.paste(danger_image, (0, 0), danger_image)
 
-            text = st.sidebar.text_area("Texte danger")
-            _, h = draw.textsize(text, font=FONT_CARD_APPEAR)
-            draw.text(
-                (185, 594 - h / 2),
-                text=text,
-                fill="white",
-                font=FONT_CARD_APPEAR,
-                spacing=1,
-            )
+        text = st.sidebar.text_area("Texte danger")
+        _, h = draw.textsize(text, font=FONT_CARD_APPEAR)
+        draw.text(
+            (185, 594 - h / 2),
+            text=text,
+            fill="white",
+            font=FONT_CARD_APPEAR,
+            spacing=1,
+        )
+
+
+def add_force(card: Image.Image):
+    force = st.sidebar.checkbox("Force du monstre", value=False)
+    if force:
+        force_level = st.sidebar.slider("Force", min_value=1, max_value=4, value=1)
+        force_logo = Image.open(f"docs/images/force-{force_level}.png")
+        card.paste(force_logo, (0, 0), force_logo)
+    return force
 
 
 def make_card(illustration):
@@ -307,17 +313,19 @@ def make_card(illustration):
     add_bandeau(card)
     add_card_name(draw)
     add_card_type(card, draw)
-    add_person_corner(card)
-    add_green_token(card, draw)
-    add_cost(card, draw)
+    force = add_force(card)
 
-    add_left_items(card, draw)
+    if not force:
+        add_person_corner(card)
+        add_green_token(card, draw)
+        add_cost(card, draw)
+        add_left_items(card, draw)
 
     appear = add_appear(card, draw)
-    add_danger(card, draw, appear)
 
-    # add_clock(card, appear)
-    add_horde(card, appear)
+    if not appear:
+        add_danger(card, draw)
+        add_horde(card)
 
     add_text(draw)
     add_subtitle(draw)
