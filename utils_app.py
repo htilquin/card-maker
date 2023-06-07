@@ -1,6 +1,19 @@
 import streamlit as st
 from PIL import Image, ImageFont, ImageDraw
 
+st.set_page_config(
+    page_title="Card Maker",
+    page_icon="🃏",
+    layout="centered",
+    initial_sidebar_state="auto",
+    menu_items={
+        "About": """### Card Maker 
+    \nTemplate for cards for our family game.
+    \n ---
+    """
+    },
+)
+
 BASECARD = Image.open("docs/images/basic-template.png")
 
 WIDTH, HEIGHT = BASECARD.size
@@ -28,20 +41,83 @@ FONT_CARD_TEXT = ravise_34_font
 FONT_CARD_LEGEND = libertine_font_28
 FONT_CARD_APPEAR = libertine_font_24
 
+ressource_dict = {
+    "Courage": "arm",
+    "Courage +": "arm-plus",
+    "Botte": "boot",
+    "Botte +": "boot-plus",
+    "Compétence": "skill",
+}
 
-def add_illustration(card: Image.Image, illustration):
+
+class Card:
+    illustration = "docs/images/basic_illustration.PNG"
+    size = 100
+    horizon = 0
+    vertical = 0
+    bandeau_couleur = "Gris"
+    card_name = "Carte"
+    card_subtitle = False
+    subtitle_text = "Compagnon"
+    force = False
+    force_level = 0
+    person_corner = False
+    points_victoire = False
+    value_pts_victoire = 0
+    cost = False
+    cost_value = 0
+    ressource_1 = False
+    first_ressource = None
+    value_skill = 0
+    ressource_2 = False
+    second_ressource = None
+    ressource_3 = False
+    third_ressource = None
+    appear = False
+    text_appear = ""
+    danger = False
+    text_danger = ""
+    horde = False
+    main_text = ""
+    subtext = ""
+
+    def to_dict(self):
+        return {
+            "illustration": self.illustration,
+            "size": self.size,
+            "horizon": self.horizon,
+            "vertical": self.vertical,
+            "bandeau_couleur": self.bandeau_couleur,
+            "card_name": self.card_name,
+            "card_subtitle": self.card_subtitle,
+            "subtitle_text": self.subtitle_text,
+            "force": self.force,
+            "force_level": self.force_level,
+            "person_corner": self.person_corner,
+            "points_victoire": self.points_victoire,
+            "value_pts_victoire": self.value_pts_victoire,
+            "cost": self.cost,
+            "cost_value": self.cost_value,
+            "ressource_1": self.ressource_1,
+            "first_ressource": self.first_ressource,
+            "value_skill": self.value_skill,
+            "ressource_2": self.ressource_2,
+            "second_ressource": self.second_ressource,
+            "ressource_3": self.ressource_3,
+            "third_ressource": self.third_ressource,
+            "appear": self.appear,
+            "text_appear": self.text_appear,
+            "danger": self.danger,
+            "text_danger": self.text_danger,
+            "horde": self.horde,
+            "main_text": self.main_text,
+            "subtext": self.subtext,
+        }
+
+
+def resize_illustration(illustration, size):
     x, y = illustration.size
     ratio = y / x
-
-    size = st.sidebar.slider(
-        "Changer la taille de la photo", min_value=20, max_value=300, value=100
-    )
-    horizon = st.sidebar.slider(
-        "Déplacer photo horizontalement", min_value=-400, max_value=100, value=0
-    )
-    vertical = st.sidebar.slider(
-        "Déplacer photo verticalement", min_value=-400, max_value=100, value=0
-    )
 
     resized_illustration = illustration.resize(
         (
@@ -50,285 +126,190 @@ def add_illustration(card: Image.Image, illustration):
         ),
         Image.LANCZOS,
     )
+    return resized_illustration
 
-    card.paste(resized_illustration, (horizon + offset // 2, vertical + offset // 2))
+
+def make_card(card_spec: Card):
+    card = BASECARD.copy()
+    draw = ImageDraw.Draw(card)
+
+    illustration = Image.open(card_spec.illustration)
+    size = card_spec.size
+    resized_illustration = resize_illustration(illustration, size)
+    new_x, new_y = resized_illustration.size
+
+    horizon = card_spec.horizon
+    if size > 100:
+        horizon = st.sidebar.slider(
+            "Déplacer photo horizontalement",
+            min_value=0,
+            max_value=max(new_x - WIDTH + offset, 1),
+            value=0,
+        )
+
+    vertical = card_spec.vertical
+    if new_y > int(0.69 * HEIGHT) - offset:
+        vertical = st.sidebar.slider(
+            "Déplacer photo verticalement",
+            min_value=0,
+            max_value=max(new_y - int(0.69 * HEIGHT) + offset, 1),
+            value=0,
+        )
+
+    card.paste(resized_illustration, (-horizon + offset // 2, -vertical + offset // 2))
     card.paste(BASECARD, (0, 0), BASECARD)
 
-
-def add_bandeau(card: Image.Image):
-    bandeau_couleur = st.sidebar.selectbox(
-        "Couleur du ruban", ("Gris", "Rouge", "Bleu", "Violet", "Jaune")
-    )
-    bandeau = Image.open(f"docs/images/bandeau-{bandeau_couleur.lower()}.png")
-
+    bandeau = Image.open(f"docs/images/bandeau-{card_spec.bandeau_couleur}.png")
     card.paste(bandeau, (0, 0), bandeau)
 
-
-def add_person_corner(card: Image.Image):
-    person_corner = st.sidebar.checkbox("Coin 'personnage'", value=False)
-    if person_corner:
-        person_logo = Image.open("docs/images/person-corner.png")
-        card.paste(person_logo, (0, 0), person_logo)
-
-
-def add_card_name(draw: ImageDraw.ImageDraw):
-    text = st.sidebar.text_input("Nom de la  carte", value="Carte")
-    w, _ = draw.textsize(text, font=FONT_CARD_NAME)
+    card_name = card_spec.card_name
+    w, _ = draw.textsize(card_name, font=FONT_CARD_NAME)
     draw.text(
         ((WIDTH - w) / 2 - 1, 45 - 1),
-        text=text,
+        text=card_name,
         fill="black",
         font=FONT_CARD_NAME,
     )
-    draw.text(((WIDTH - w) / 2, 45), text=text, fill="white", font=FONT_CARD_NAME)
+    draw.text(((WIDTH - w) / 2, 45), text=card_name, fill="white", font=FONT_CARD_NAME)
 
-
-def add_card_type(card: Image.Image, draw: ImageDraw.ImageDraw):
-    card_type = st.sidebar.checkbox("Catégorie de la carte", value=False)
-    if card_type:
+    if card_spec.card_subtitle:
         subtitle = Image.open("docs/images/sous-titre.png")
         card.paste(subtitle, (0, 0), subtitle)
-        text = st.sidebar.text_input("Texte sous-titre", value="Compagnon")
-        w, _ = draw.textsize(text, font=FONT_CARD_TYPE)
-        draw.text(((WIDTH - w) / 2, 94), text=text, fill="white", font=FONT_CARD_TYPE)
-
-
-def add_green_token(card: Image.Image, draw: ImageDraw.ImageDraw):
-    green_token = st.sidebar.checkbox("Points de victoire", value=False)
-    if green_token:
-        green_logo = Image.open("docs/images/jeton_vert.png")
-        card.paste(green_logo, (0, 0), green_logo)
-
-        value_green_token = st.sidebar.select_slider(
-            "Nombre de points de victoire",
-            options=[1, 2, 3, 4, 5, 6, 7, 8, "?"],
-            value=1,
-        )
-
-        text_green_token = str(value_green_token)
-
-        w, h = draw.textsize(text_green_token, font=FONT_TOKEN)
+        subtitle_text = card_spec.subtitle_text
+        w, _ = draw.textsize(subtitle_text, font=FONT_CARD_TYPE)
         draw.text(
-            (WIDTH - w / 2 - 59 - 1, h - 1),
-            text=text_green_token,
-            fill=(0, 0, 0, 128),
-            font=FONT_TOKEN,
-        )
-        draw.text(
-            (WIDTH - w / 2 - 59, h),
-            text=text_green_token,
-            fill="white",
-            font=FONT_TOKEN,
+            ((WIDTH - w) / 2, 94), text=subtitle_text, fill="white", font=FONT_CARD_TYPE
         )
 
+    if card_spec.force:
+        force_logo = Image.open(f"docs/images/force-{card_spec.force_level}.png")
+        card.paste(force_logo, (0, 0), force_logo)
+    else:
+        if card_spec.person_corner:
+            person_logo = Image.open("docs/images/person-corner.png")
+            card.paste(person_logo, (0, 0), person_logo)
 
-def add_left_items(card: Image.Image, draw: ImageDraw.ImageDraw):
-    ressource_dict = {
-        "Courage": "arm",
-        "Courage +": "arm-plus",
-        "Botte": "boot",
-        "Botte +": "boot-plus",
-        "Compétence": "skill",
-    }
-
-    ressource_1 = st.sidebar.checkbox("Ressource 1", value=False)
-    if ressource_1:
-        first_ressource = st.sidebar.selectbox(
-            "Ressource 1", ("Compétence", "Courage", "Botte")
-        )
-        first_rsrc = Image.open(
-            f"docs/images/n1-{ressource_dict.get(first_ressource)}.png"
-        )
-
-        if first_ressource == "Compétence":
-            value_skill = st.sidebar.select_slider(
-                "Points de compétence", options=["0+", 1, 2, 3, 4], value=1
+        if card_spec.points_victoire:
+            green_logo = Image.open("docs/images/jeton_vert.png")
+            card.paste(green_logo, (0, 0), green_logo)
+            text_green_token = str(card_spec.value_pts_victoire)
+            w, h = draw.textsize(text_green_token, font=FONT_TOKEN)
+            draw.text(
+                (WIDTH - w / 2 - 59 - 1, h - 1),
+                text=text_green_token,
+                fill=(0, 0, 0, 128),
+                font=FONT_TOKEN,
+            )
+            draw.text(
+                (WIDTH - w / 2 - 59, h),
+                text=text_green_token,
+                fill="white",
+                font=FONT_TOKEN,
             )
 
-            if value_skill == "0+":
+        if card_spec.cost:
+            cost_logo = Image.open("docs/images/cost-corner.png")
+            card.paste(cost_logo, (0, 0), cost_logo)
+            text_cost = str(card_spec.cost_value)
+            w, h = draw.textsize(text_cost, font=FONT_TOKEN)
+            draw.text(
+                (WIDTH - w / 2 - 52 - 1, HEIGHT - h / 2 - 55),
+                text=text_cost,
+                fill=(0, 0, 0, 128),
+                font=FONT_TOKEN,
+            )
+            draw.text(
+                (WIDTH - w / 2 - 52, HEIGHT - h / 2 - 55),
+                text=text_cost,
+                fill="white",
+                font=FONT_TOKEN,
+            )
+
+        if card_spec.ressource_1:
+            first_ressource = card_spec.first_ressource
+            first_rsrc = Image.open(
+                f"docs/images/n1-{ressource_dict.get(first_ressource)}.png"
+            )
+            if card_spec.value_skill == "0+":
                 first_rsrc = Image.open(
                     f"docs/images/n1-{ressource_dict.get(first_ressource)}-plus.png"
                 )
-                value_skill = 0
+                card_spec.value_skill = 0
 
-    ressource_2 = st.sidebar.checkbox("Ressource 2", value=False)
-    if ressource_2:
-        second_ressource = st.sidebar.selectbox(
-            "Ressource 2", ("Courage", "Courage +", "Botte")
-        )
-        scd_rsrc = Image.open(
-            f"docs/images/n2-{ressource_dict.get(second_ressource)}.png"
-        )
-
-        card.paste(scd_rsrc, (0, 0), scd_rsrc)
-
-    ressource_3 = st.sidebar.checkbox("Ressource 3", value=False)
-    if ressource_3:
-        third_ressource = st.sidebar.selectbox(
-            "Ressource 3", ("Courage", "Botte", "Botte +")
-        )
-        third_rsrc = Image.open(
-            f"docs/images/n3-{ressource_dict.get(third_ressource)}.png"
-        )
-
-        card.paste(third_rsrc, (0, 0), third_rsrc)
-
-    if ressource_1:
-        card.paste(first_rsrc, (0, 0), first_rsrc)
-
-        if first_ressource == "Compétence":
-            text_skill = str(value_skill)
-
-            w, h = draw.textsize(text_skill, font=FONT_SKILL)
-            draw.text(
-                (70 - w / 2, h / 2 + 120),
-                text=text_skill,
-                fill=(0, 0, 0, 255),
-                font=FONT_SKILL,
+        if card_spec.ressource_2:
+            scd_rsrc = Image.open(
+                f"docs/images/n2-{ressource_dict.get(card_spec.second_ressource)}.png"
             )
+            card.paste(scd_rsrc, (0, 0), scd_rsrc)
 
+        if card_spec.ressource_3:
+            third_rsrc = Image.open(
+                f"docs/images/n3-{ressource_dict.get(card_spec.third_ressource)}.png"
+            )
+            card.paste(third_rsrc, (0, 0), third_rsrc)
 
-def add_cost(card: Image.Image, draw: ImageDraw.ImageDraw):
-    cost = st.sidebar.checkbox("Ajouter un coût", value=False)
-    if cost:
-        cost_logo = Image.open("docs/images/cost-corner.png")
-        card.paste(cost_logo, (0, 0), cost_logo)
+        if card_spec.ressource_1:
+            card.paste(first_rsrc, (0, 0), first_rsrc)
+            if first_ressource == "Compétence":
+                text_skill = str(card_spec.value_skill)
+                w, h = draw.textsize(text_skill, font=FONT_SKILL)
+                draw.text(
+                    (70 - w / 2, h / 2 + 120),
+                    text=text_skill,
+                    fill=(0, 0, 0, 255),
+                    font=FONT_SKILL,
+                )
 
-        cost_value = st.sidebar.slider("Coût", min_value=1, max_value=8, value=1)
-
-        text_cost = str(cost_value)
-
-        w, h = draw.textsize(text_cost, font=FONT_TOKEN)
+    if card_spec.appear:
+        appear_image = Image.open("docs/images/apparition.png")
+        card.paste(appear_image, (0, 0), appear_image)
+        text_appear = card_spec.text_appear
+        _, h = draw.textsize(text_appear, font=FONT_CARD_APPEAR)
         draw.text(
-            (WIDTH - w / 2 - 52 - 1, HEIGHT - h / 2 - 55),
-            text=text_cost,
-            fill=(0, 0, 0, 128),
-            font=FONT_TOKEN,
-        )
-        draw.text(
-            (WIDTH - w / 2 - 52, HEIGHT - h / 2 - 55),
-            text=text_cost,
+            (252, 594 - h / 2),
+            text=text_appear,
             fill="white",
-            font=FONT_TOKEN,
+            font=FONT_CARD_APPEAR,
+            spacing=1,
         )
+    else:
+        if card_spec.danger:
+            danger_image = Image.open("docs/images/danger.png")
+            card.paste(danger_image, (0, 0), danger_image)
+            text_danger = card_spec.text_danger
+            _, h = draw.textsize(text_danger, font=FONT_CARD_APPEAR)
+            draw.text(
+                (185, 594 - h / 2),
+                text=text_danger,
+                fill="white",
+                font=FONT_CARD_APPEAR,
+                spacing=1,
+            )
+        if card_spec.horde:
+            horde_image = Image.open("docs/images/horde-parents.png")
+            card.paste(horde_image, (0, 0), horde_image)
 
-
-def add_text(draw: ImageDraw.ImageDraw):
-    text = st.sidebar.text_area("Texte principal de la carte", value="Votre texte ICI")
-    # lines = textwrap.wrap(text, width=40)
-    w, h = draw.textsize(text, font=FONT_CARD_TEXT)
+    main_text = card_spec.main_text
+    w, h = draw.textsize(main_text, font=FONT_CARD_TEXT)
     draw.text(
         ((WIDTH - w) / 2, 680 - h / 2),
-        text=text,
+        text=main_text,
         align="center",
         fill="black",
         font=FONT_CARD_TEXT,
         spacing=12,
     )
 
-
-def add_subtitle(draw: ImageDraw.ImageDraw):
-    text = st.sidebar.text_area(
-        "Texte secondaire de la carte", value=" « Citation facultative »"
-    )
-    _, h = draw.textsize(text, font=FONT_CARD_LEGEND)
+    subtext = card_spec.subtext
+    _, h = draw.textsize(subtext, font=FONT_CARD_LEGEND)
     draw.text(
         (55, HEIGHT - h - 60),
-        text=text,
+        text=subtext,
         # align="center",
         # anchor="rm",
         fill="black",
         font=FONT_CARD_LEGEND,
     )
-
-
-def add_appear(card: Image.Image, draw: ImageDraw.ImageDraw):
-    appear = st.sidebar.checkbox("Apparition", value=False)
-    if appear:
-        appear_image = Image.open("docs/images/apparition.png")
-        card.paste(appear_image, (0, 0), appear_image)
-
-        text = st.sidebar.text_area("Texte apparition")
-        _, h = draw.textsize(text, font=FONT_CARD_APPEAR)
-        draw.text(
-            (252, 594 - h / 2),
-            text=text,
-            fill="white",
-            font=FONT_CARD_APPEAR,
-            spacing=1,
-        )
-    return appear
-
-
-def add_clock(card: Image.Image):
-    clock = st.sidebar.checkbox("Horloge", value=False)
-    if clock:
-        clock_image = Image.open("docs/images/clock.png")
-        card.paste(clock_image, (0, 0), clock_image)
-
-
-def add_horde(card: Image.Image):
-    horde = st.sidebar.checkbox("Horde", value=False)
-    if horde:
-        horde_image = Image.open("docs/images/horde-parents.png")
-        card.paste(horde_image, (0, 0), horde_image)
-
-
-def add_danger(card: Image.Image, draw: ImageDraw.ImageDraw):
-    danger = st.sidebar.checkbox("Danger", value=False)
-    if danger:
-        danger_image = Image.open("docs/images/danger.png")
-        card.paste(danger_image, (0, 0), danger_image)
-
-        text = st.sidebar.text_area("Texte danger")
-        _, h = draw.textsize(text, font=FONT_CARD_APPEAR)
-        draw.text(
-            (185, 594 - h / 2),
-            text=text,
-            fill="white",
-            font=FONT_CARD_APPEAR,
-            spacing=1,
-        )
-
-
-def add_force(card: Image.Image):
-    force = st.sidebar.checkbox("Force du monstre", value=False)
-    if force:
-        force_level = st.sidebar.slider("Force", min_value=1, max_value=4, value=1)
-        force_logo = Image.open(f"docs/images/force-{force_level}.png")
-        card.paste(force_logo, (0, 0), force_logo)
-    return force
-
-
-def make_card(illustration):
-    card = BASECARD.copy()
-    draw = ImageDraw.Draw(card)
-
-    if illustration is None:
-        illustration = Image.open("docs/images/basic_illustration.PNG")
-    else:
-        illustration = Image.open(illustration)
-
-    add_illustration(card, illustration)
-    add_bandeau(card)
-    add_card_name(draw)
-    add_card_type(card, draw)
-    force = add_force(card)
-
-    if not force:
-        add_person_corner(card)
-        add_green_token(card, draw)
-        add_cost(card, draw)
-        add_left_items(card, draw)
-
-    appear = add_appear(card, draw)
-
-    if not appear:
-        add_danger(card, draw)
-        add_horde(card)
-
-    add_text(draw)
-    add_subtitle(draw)
 
     return card
 
