@@ -1,7 +1,8 @@
+import json
 import streamlit as st
 from utils_app import *
 from io import BytesIO
-
+import zipfile
 
 # st.set_page_config(
 #     page_title="Card Maker",
@@ -23,16 +24,6 @@ st.markdown("## Card Maker !")
 st.markdown("Petit outil pour faire des cartes à jouer personnalisées.")
 
 card_spec = Card()
-
-illustration = st.sidebar.file_uploader(
-    "Sélectionner l'illustration",
-    type=["png", "jpg", "jpeg"],
-)
-if illustration:
-    card_spec.illustration = illustration
-card_spec.size = st.sidebar.slider(
-    "Changer la taille de la photo", min_value=100, max_value=300, value=100
-)
 
 card_spec.bandeau_couleur = st.sidebar.selectbox(
     "Couleur du ruban", ("Gris", "Rouge", "Bleu", "Violet", "Jaune")
@@ -105,9 +96,39 @@ card_spec.subtext = st.sidebar.text_area(
     "Texte secondaire de la carte", value="« Citation facultative »"
 )
 
-tab1, tab2 = st.tabs(["Carte", "Specs"])
+tab1, tab2, tab3 = st.tabs(["Voir la Carte", "Voir les Specs", "Charger Specs"])
 
 with tab1:
+    with st.expander("Modifier la photo"):
+        illustration_path = st.file_uploader(
+            "Sélectionner l'illustration",
+            type=["png", "jpg", "jpeg"],
+        )
+        if illustration_path:
+            card_spec.illustration_path = illustration_path
+
+        card_spec.size = st.slider(
+            "Changer la taille de la photo", min_value=100, max_value=300, value=100
+        )
+
+        new_x, new_y = get_resized_dimensions(
+            card_spec.illustration_path, card_spec.size
+        )
+        if card_spec.size > 100:
+            card_spec.horizon = st.slider(
+                "Déplacer photo horizontalement",
+                min_value=0,
+                max_value=max(new_x - WIDTH + offset, 1),
+                value=0,
+            )
+        if new_y > int(0.69 * HEIGHT) - offset:
+            card_spec.vertical = st.slider(
+                "Déplacer photo verticalement",
+                min_value=0,
+                max_value=max(new_y - int(0.69 * HEIGHT) + offset, 1),
+                value=0,
+            )
+
     card = make_card(card_spec)
     st.image(card)
     buf = BytesIO()
@@ -118,4 +139,40 @@ with tab1:
 
 
 with tab2:
-    st.write(card_spec.to_dict())
+    dict_of_spec = card_spec.to_dict()
+    st.write(dict_of_spec)
+    st.download_button("Download the specs", str(dict_of_spec))
+
+with tab3:
+    uploaded_spec = st.file_uploader(
+        "Sélectionner le fichier contenant les specs (liste de dictionnaires)",
+        type=["txt"],
+    )
+
+    if uploaded_spec:
+        the_specs = json.loads(uploaded_spec.read())
+
+        # for specs in the_specs["cards"]:
+        #     card_from_spec = Card()
+        #     card_from_spec.from_dict(specs)
+        #     card_done = make_card(card_from_spec)
+        #     st.image(card_done)
+
+        with BytesIO() as buffer:
+            with zipfile.ZipFile(buffer, "w") as zip:
+                # for specs in the_specs["cards"]:
+                for specs in the_specs:
+                    card_from_spec = Card()
+                    card_from_spec.from_dict(specs)
+                    card_done = make_card(card_from_spec)
+                    buf = BytesIO()
+                    card_done.save(buf, format="PNG")
+                    byte_im = buf.getvalue()
+                    # st.image(card_done)
+                    zip.writestr(f"{card_from_spec.card_name}.png", byte_im)
+
+            buffer.seek(0)
+
+            btn = st.download_button(
+                label="Download ZIP", data=buffer, file_name="file.zip"
+            )

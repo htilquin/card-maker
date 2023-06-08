@@ -51,7 +51,7 @@ ressource_dict = {
 
 
 class Card:
-    illustration = "docs/images/basic_illustration.PNG"
+    illustration_path = "docs/images/basic_illustration.PNG"
     size = 100
     horizon = 0
     vertical = 0
@@ -83,7 +83,7 @@ class Card:
 
     def to_dict(self):
         return {
-            "illustration": self.illustration,
+            "illustration_path": self.illustration_path,
             "size": self.size,
             "horizon": self.horizon,
             "vertical": self.vertical,
@@ -114,6 +114,48 @@ class Card:
             "subtext": self.subtext,
         }
 
+    def from_dict(self, data):
+        self.illustration_path = data.get("illustration_path")
+        self.size = data.get("size")
+        self.horizon = data.get("horizon")
+        self.vertical = data.get("vertical")
+        self.bandeau_couleur = data.get("bandeau_couleur")
+        self.card_name = data.get("card_name")
+        self.card_subtitle = data.get("card_subtitle")
+        self.subtitle_text = data.get("subtitle_text")
+        self.force = data.get("force")
+        self.force_level = data.get("force_level")
+        self.person_corner = data.get("person_corner")
+        self.points_victoire = data.get("points_victoire")
+        self.value_pts_victoire = data.get("value_pts_victoire")
+        self.cost = data.get("cost")
+        self.cost_value = data.get("cost_value")
+        self.ressource_1 = data.get("ressource_1")
+        self.first_ressource = data.get("first_ressource")
+        self.value_skill = data.get("value_skill")
+        self.ressource_2 = data.get("ressource_2")
+        self.second_ressource = data.get("second_ressource")
+        self.ressource_3 = data.get("ressource_3")
+        self.third_ressource = data.get("third_ressource")
+        self.appear = data.get("appear")
+        self.text_appear = data.get("text_appear")
+        self.danger = data.get("danger")
+        self.text_danger = data.get("text_danger")
+        self.horde = data.get("horde")
+        self.main_text = data.get("main_text")
+        self.subtext = data.get("subtext")
+
+
+def get_resized_dimensions(illustration_path, size):
+    illustration = Image.open(illustration_path)
+    x, y = illustration.size
+    ratio = y / x
+
+    new_x = int((WIDTH - offset) / 100 * size)
+    new_y = int((WIDTH - offset) / 100 * ratio * size)
+
+    return new_x, new_y
+
 
 def resize_illustration(illustration, size):
     x, y = illustration.size
@@ -121,8 +163,8 @@ def resize_illustration(illustration, size):
 
     resized_illustration = illustration.resize(
         (
-            int((WIDTH - offset) * size / 100),
-            int((WIDTH - offset) * ratio * size / 100),
+            int((WIDTH - offset) / 100 * size),
+            int((WIDTH - offset) / 100 * ratio * size),
         ),
         Image.LANCZOS,
     )
@@ -133,29 +175,11 @@ def make_card(card_spec: Card):
     card = BASECARD.copy()
     draw = ImageDraw.Draw(card)
 
-    illustration = Image.open(card_spec.illustration)
+    illustration = Image.open(card_spec.illustration_path)
     size = card_spec.size
     resized_illustration = resize_illustration(illustration, size)
-    new_x, new_y = resized_illustration.size
-
     horizon = card_spec.horizon
-    if size > 100:
-        horizon = st.sidebar.slider(
-            "Déplacer photo horizontalement",
-            min_value=0,
-            max_value=max(new_x - WIDTH + offset, 1),
-            value=0,
-        )
-
     vertical = card_spec.vertical
-    if new_y > int(0.69 * HEIGHT) - offset:
-        vertical = st.sidebar.slider(
-            "Déplacer photo verticalement",
-            min_value=0,
-            max_value=max(new_y - int(0.69 * HEIGHT) + offset, 1),
-            value=0,
-        )
-
     card.paste(resized_illustration, (-horizon + offset // 2, -vertical + offset // 2))
     card.paste(BASECARD, (0, 0), BASECARD)
 
