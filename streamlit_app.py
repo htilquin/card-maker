@@ -135,13 +135,19 @@ with tab1:
     card.save(buf, format="PNG")
     byte_im = buf.getvalue()
 
-    st.download_button(label="Télécharger la carte", data=byte_im, file_name="card.png")
+    st.download_button(
+        label="Télécharger la carte",
+        data=byte_im,
+        file_name=f"{card_spec.card_name}.png",
+    )
 
 
 with tab2:
     dict_of_spec = card_spec.to_dict()
     st.write(dict_of_spec)
-    st.download_button("Download the specs", str(dict_of_spec))
+    st.download_button(
+        "Download the specs", str(dict_of_spec), file_name=f"{card_spec.card_name}.txt"
+    )
 
 with tab3:
     uploaded_spec = st.file_uploader(
