@@ -155,19 +155,22 @@ with tab3:
         type=["txt"],
     )
 
-    if uploaded_spec:
-        the_specs = json.loads(uploaded_spec.read())
+    uploaded_pics = st.file_uploader(
+        "Sélectionner les photos correspondantes : nom de la photo = illustration_path.",
+        accept_multiple_files=True,
+    )
 
-        # for specs in the_specs["cards"]:
-        #     card_from_spec = Card()
-        #     card_from_spec.from_dict(specs)
-        #     card_done = make_card(card_from_spec)
-        #     st.image(card_done)
+    sorted_pics = sorted(uploaded_pics, key=lambda d: d.name)
+
+    if uploaded_spec and uploaded_pics:
+        the_specs = json.loads(uploaded_spec.read())
+        sorted_specs = sorted(the_specs, key=lambda d: d["illustration_path"])
 
         with BytesIO() as buffer:
-            with zipfile.ZipFile(buffer, "w") as zip:
+            with zipfile.ZipFile(buffer, "w") as zipfile:
                 # for specs in the_specs["cards"]:
-                for specs in the_specs:
+                for specs, photo in zip(sorted_specs, sorted_pics):
+                    print(specs["illustration_path"], photo.name)
                     card_from_spec = Card()
                     card_from_spec.from_dict(specs)
                     card_done = make_card(card_from_spec)
@@ -175,7 +178,7 @@ with tab3:
                     card_done.save(buf, format="PNG")
                     byte_im = buf.getvalue()
                     # st.image(card_done)
-                    zip.writestr(f"{card_from_spec.card_name}.png", byte_im)
+                    zipfile.writestr(f"{card_from_spec.card_name}.png", byte_im)
 
             buffer.seek(0)
 
