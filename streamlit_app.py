@@ -28,35 +28,48 @@ card_spec = Card()
 card_spec.bandeau_couleur = st.sidebar.selectbox(
     "Couleur du ruban", ("Gris", "Rouge", "Bleu", "Violet", "Jaune")
 ).lower()
+couleur = card_spec.bandeau_couleur
 card_spec.card_name = st.sidebar.text_input("Nom de la  carte", value="Carte")
-card_spec.card_subtitle = st.sidebar.checkbox("Catégorie de la carte", value=False)
-card_spec.subtitle_text = (
-    "/"
-    if not card_spec.card_subtitle
-    else st.sidebar.text_input("Texte sous-titre", value="Compagnon")
-)
+if not couleur == "gris":
+    if couleur in ["rouge", "violet"]:
+        card_spec.card_subtitle = True
+    else:
+        card_spec.card_subtitle = st.sidebar.checkbox(
+            "Ajouter une catégorie", value=False
+        )
+    if card_spec.card_subtitle:
+        card_spec.subtitle_text = st.sidebar.text_input(
+            "Catégorie de la carte", value="Compagnon"
+        )
 
-card_spec.force = st.sidebar.checkbox("Force du monstre", value=False)
-if card_spec.force:
+if couleur == "rouge":
+    card_spec.force = True  # que rouge; tous les rouges
     card_spec.force_level = st.sidebar.slider(
         "Force", min_value=1, max_value=4, value=1
     )
 
-else:
-    card_spec.person_corner = st.sidebar.checkbox("Coin 'personnage'", value=False)
-    card_spec.points_victoire = st.sidebar.checkbox("Points de victoire", value=False)
+if couleur == "bleu" and card_spec.card_subtitle:
+    card_spec.person_corner = st.sidebar.checkbox(
+        "Coin 'personnage'", value=False
+    )  # que bleu
+
+if couleur not in ["rouge", "gris"]:
+    card_spec.cost = True  # bleu jaune violet
+    card_spec.cost_value = st.sidebar.slider("Coût", min_value=1, max_value=8, value=1)
+
+if couleur in ["bleu", "jaune"]:
+    card_spec.points_victoire = st.sidebar.checkbox(
+        "Points de victoire", value=False
+    )  # bleu ou jaune
     if card_spec.points_victoire:
         card_spec.value_pts_victoire = st.sidebar.select_slider(
             "Nombre de points de victoire",
             options=[1, 2, 3, 4, 5, 6, 7, 8, "?"],
             value=1,
         )
-    card_spec.cost = st.sidebar.checkbox("Ajouter un coût", value=False)
-    if card_spec.cost:
-        card_spec.cost_value = st.sidebar.slider(
-            "Coût", min_value=1, max_value=8, value=1
-        )
 
+
+if couleur not in ["rouge", "violet"]:
     card_spec.ressource_1 = st.sidebar.checkbox("Ressource 1", value=False)
     if card_spec.ressource_1:
         card_spec.first_ressource = st.sidebar.selectbox(
@@ -78,14 +91,18 @@ else:
                 card_spec.third_ressource = st.sidebar.selectbox(
                     "Ressource 3", ("Courage", "Botte", "Botte +")
                 )
-
-card_spec.appear = st.sidebar.checkbox("Apparition", value=False)
-if card_spec.appear:
-    card_spec.text_appear = st.sidebar.text_area("Texte apparition")
 else:
-    card_spec.danger = st.sidebar.checkbox("Danger", value=False)
-    if card_spec.danger:
-        card_spec.text_danger = st.sidebar.text_area("Texte danger")
+    card_spec.appear = st.sidebar.checkbox("Apparition", value=False)  # rouge ou violet
+    if card_spec.appear:
+        card_spec.text_appear = st.sidebar.text_area("Texte apparition")
+    else:
+        card_spec.danger = st.sidebar.checkbox("Danger", value=False)  # rouge ou violet
+        if card_spec.danger:
+            card_spec.text_danger = st.sidebar.text_area("Texte danger")
+        card_spec.horde = st.sidebar.checkbox("Horde", value=False)  # rouge bleu violet
+
+if couleur == "bleu":
+    ## Acquisition : uniquement bleu
     card_spec.horde = st.sidebar.checkbox("Horde", value=False)
 
 card_spec.main_text = st.sidebar.text_area(
