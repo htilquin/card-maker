@@ -14,9 +14,9 @@ st.set_page_config(
     },
 )
 
-BASECARD = Image.open("docs/images/basic-template.png")
+# BASECARD = Image.open("docs/images/basic-template.png")
+# WIDTH, HEIGHT = BASECARD.size
 
-WIDTH, HEIGHT = BASECARD.size
 # mermaid_font = ImageFont.truetype("docs/font/Mermaid1001.ttf", 45)
 ravise_34_font = ImageFont.truetype("docs/font/Ravise-Regular.ttf", 34)
 ravise_45_font = ImageFont.truetype("docs/font/Ravise-Regular.ttf", 45)
@@ -51,6 +51,9 @@ ressource_dict = {
 
 
 class Card:
+    BASECARD = Image.open("docs/images/basic-template.png")
+    WIDTH, HEIGHT = BASECARD.size
+
     illustration_path = "docs/images/basic_illustration.PNG"
     size = 100
     horizon = 0
@@ -66,6 +69,7 @@ class Card:
     value_pts_victoire = 0
     cost = False
     cost_value = 0
+    acquire = False
     ressource_1 = False
     first_ressource = None
     value_skill = 0
@@ -73,6 +77,15 @@ class Card:
     second_ressource = None
     ressource_3 = False
     third_ressource = None
+    symbol_1 = False
+    first_symbol = None
+    first_symbol_position = (0, 0)
+    symbol_2 = False
+    second_symbol = None
+    second_symbol_position = (0, 0)
+    symbol_3 = False
+    third_symbol = None
+    third_symbol_position = (0, 0)
     appear = False
     text_appear = ""
     danger = False
@@ -98,6 +111,7 @@ class Card:
             "value_pts_victoire": self.value_pts_victoire,
             "cost": self.cost,
             "cost_value": self.cost_value,
+            "acquire": self.acquire,
             "ressource_1": self.ressource_1,
             "first_ressource": self.first_ressource,
             "value_skill": self.value_skill,
@@ -105,6 +119,15 @@ class Card:
             "second_ressource": self.second_ressource,
             "ressource_3": self.ressource_3,
             "third_ressource": self.third_ressource,
+            "symbol_1": self.symbol_1,
+            "first_symbol": self.first_symbol,
+            "first_symbol_position": self.first_symbol_position,
+            "symbol_2": self.symbol_2,
+            "second_symbol": self.second_symbol,
+            "second_symbol_position": self.second_symbol_position,
+            "symbol_3": self.symbol_3,
+            "third_symbol": self.third_symbol,
+            "third_symbol_position": self.third_symbol_position,
             "appear": self.appear,
             "text_appear": self.text_appear,
             "danger": self.danger,
@@ -130,6 +153,7 @@ class Card:
         self.value_pts_victoire = data.get("value_pts_victoire")
         self.cost = data.get("cost")
         self.cost_value = data.get("cost_value")
+        self.acquire = data.get("acquire")
         self.ressource_1 = data.get("ressource_1")
         self.first_ressource = data.get("first_ressource")
         self.value_skill = data.get("value_skill")
@@ -137,6 +161,15 @@ class Card:
         self.second_ressource = data.get("second_ressource")
         self.ressource_3 = data.get("ressource_3")
         self.third_ressource = data.get("third_ressource")
+        self.symbol_1 = data.get("symbol_1")
+        self.first_symbol = data.get("first_symbol")
+        self.first_symbol_position = data.get("first_symbol_position")
+        self.symbol_2 = data.get("symbol_2")
+        self.second_symbol = data.get("second_symbol")
+        self.second_symbol_position = data.get("second_symbol_position")
+        self.symbol_3 = data.get("symbol_3")
+        self.third_symbol = data.get("third_symbol")
+        self.third_symbol_position = data.get("third_symbol_position")
         self.appear = data.get("appear")
         self.text_appear = data.get("text_appear")
         self.danger = data.get("danger")
@@ -146,25 +179,27 @@ class Card:
         self.subtext = data.get("subtext")
 
 
-def get_resized_dimensions(illustration_path, size):
-    illustration = Image.open(illustration_path)
+def get_resized_dimensions(card_spec):
+    illustration = Image.open(card_spec.illustration_path)
     x, y = illustration.size
     ratio = y / x
 
-    new_x = int((WIDTH - offset) / 100 * size)
-    new_y = int((WIDTH - offset) / 100 * ratio * size)
+    new_x = int((card_spec.WIDTH - offset) / 100 * card_spec.size)
+    new_y = int((card_spec.WIDTH - offset) / 100 * ratio * card_spec.size)
 
     return new_x, new_y
 
 
-def resize_illustration(illustration, size):
+def resize_illustration(card_spec):
+    illustration = Image.open(card_spec.illustration_path)
+    size = card_spec.size
     x, y = illustration.size
     ratio = y / x
 
     resized_illustration = illustration.resize(
         (
-            int((WIDTH - offset) / 100 * size),
-            int((WIDTH - offset) / 100 * ratio * size),
+            int((card_spec.WIDTH - offset) / 100 * size),
+            int((card_spec.WIDTH - offset) / 100 * ratio * size),
         ),
         Image.LANCZOS,
     )
@@ -172,16 +207,17 @@ def resize_illustration(illustration, size):
 
 
 def make_card(card_spec: Card):
-    card = BASECARD.copy()
+    if card_spec.acquire:
+        card_spec.BASECARD = Image.open("docs/images/acquire.png")
+
+    card = card_spec.BASECARD.copy()
     draw = ImageDraw.Draw(card)
 
-    illustration = Image.open(card_spec.illustration_path)
-    size = card_spec.size
-    resized_illustration = resize_illustration(illustration, size)
+    resized_illustration = resize_illustration(card_spec)
     horizon = card_spec.horizon
     vertical = card_spec.vertical
     card.paste(resized_illustration, (-horizon + offset // 2, -vertical + offset // 2))
-    card.paste(BASECARD, (0, 0), BASECARD)
+    card.paste(card_spec.BASECARD, (0, 0), card_spec.BASECARD)
 
     bandeau = Image.open(f"docs/images/bandeau-{card_spec.bandeau_couleur}.png")
     card.paste(bandeau, (0, 0), bandeau)
@@ -189,12 +225,17 @@ def make_card(card_spec: Card):
     card_name = card_spec.card_name
     w, _ = draw.textsize(card_name, font=FONT_CARD_NAME)
     draw.text(
-        ((WIDTH - w) / 2 - 1, 45 - 1),
+        ((card_spec.WIDTH - w) / 2 - 1, 45 - 1),
         text=card_name,
         fill="black",
         font=FONT_CARD_NAME,
     )
-    draw.text(((WIDTH - w) / 2, 45), text=card_name, fill="white", font=FONT_CARD_NAME)
+    draw.text(
+        ((card_spec.WIDTH - w) / 2, 45),
+        text=card_name,
+        fill="white",
+        font=FONT_CARD_NAME,
+    )
 
     if card_spec.card_subtitle:
         subtitle = Image.open("docs/images/sous-titre.png")
@@ -202,7 +243,10 @@ def make_card(card_spec: Card):
         subtitle_text = card_spec.subtitle_text
         w, _ = draw.textsize(subtitle_text, font=FONT_CARD_TYPE)
         draw.text(
-            ((WIDTH - w) / 2, 94), text=subtitle_text, fill="white", font=FONT_CARD_TYPE
+            ((card_spec.WIDTH - w) / 2, 94),
+            text=subtitle_text,
+            fill="white",
+            font=FONT_CARD_TYPE,
         )
 
     if card_spec.force:
@@ -219,31 +263,32 @@ def make_card(card_spec: Card):
             text_green_token = str(card_spec.value_pts_victoire)
             w, h = draw.textsize(text_green_token, font=FONT_TOKEN)
             draw.text(
-                (WIDTH - w / 2 - 59 - 1, h - 1),
+                (card_spec.WIDTH - w / 2 - 59 - 1, h - 1),
                 text=text_green_token,
                 fill=(0, 0, 0, 128),
                 font=FONT_TOKEN,
             )
             draw.text(
-                (WIDTH - w / 2 - 59, h),
+                (card_spec.WIDTH - w / 2 - 59, h),
                 text=text_green_token,
                 fill="white",
                 font=FONT_TOKEN,
             )
 
         if card_spec.cost:
-            cost_logo = Image.open("docs/images/cost-corner.png")
-            card.paste(cost_logo, (0, 0), cost_logo)
+            if not card_spec.acquire:
+                cost_logo = Image.open("docs/images/cost-corner.png")
+                card.paste(cost_logo, (0, 0), cost_logo)
             text_cost = str(card_spec.cost_value)
             w, h = draw.textsize(text_cost, font=FONT_TOKEN)
             draw.text(
-                (WIDTH - w / 2 - 52 - 1, HEIGHT - h / 2 - 55),
+                (card_spec.WIDTH - w / 2 - 52 - 1, card_spec.HEIGHT - h / 2 - 55),
                 text=text_cost,
                 fill=(0, 0, 0, 128),
                 font=FONT_TOKEN,
             )
             draw.text(
-                (WIDTH - w / 2 - 52, HEIGHT - h / 2 - 55),
+                (card_spec.WIDTH - w / 2 - 52, card_spec.HEIGHT - h / 2 - 55),
                 text=text_cost,
                 fill="white",
                 font=FONT_TOKEN,
@@ -314,9 +359,10 @@ def make_card(card_spec: Card):
             card.paste(horde_image, (0, 0), horde_image)
 
     main_text = card_spec.main_text
+    danger_offset = 45 if card_spec.appear or card_spec.danger else 0
     w, h = draw.textsize(main_text, font=FONT_CARD_TEXT)
     draw.text(
-        ((WIDTH - w) / 2, 680 - h / 2),
+        ((card_spec.WIDTH - w) / 2, 680 - h / 2 + danger_offset),
         text=main_text,
         align="center",
         fill="black",
@@ -325,9 +371,10 @@ def make_card(card_spec: Card):
     )
 
     subtext = card_spec.subtext
+    acquire_offset = 55 if card_spec.acquire else 0
     _, h = draw.textsize(subtext, font=FONT_CARD_LEGEND)
     draw.text(
-        (55, HEIGHT - h - 60),
+        (55, card_spec.HEIGHT - h - 60 - acquire_offset),
         text=subtext,
         # align="center",
         # anchor="rm",

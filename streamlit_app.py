@@ -103,11 +103,51 @@ else:
 
 if couleur == "bleu":
     ## Acquisition : uniquement bleu
+    card_spec.acquire = st.sidebar.checkbox("Acquisition", value=False)
     card_spec.horde = st.sidebar.checkbox("Horde", value=False)
 
 card_spec.main_text = st.sidebar.text_area(
     "Texte principal de la carte", value="Votre texte ICI"
 )
+
+## Ajouts de symboles
+## jaune et gris : pas de symboles
+## violet : 2 symboles max
+## rouge : 1 seul symbole
+## bleu : touttttttt (3 symboles)
+
+symbols = [
+    "PO - grand",
+    "PO - petit",
+    "Botte - grand",
+    "Botte - grand x2",
+    "Botte - petit",
+    "Competence - grand",
+    "Competence - petit",
+    "Coeur - grand",
+    "Coeur - petit",
+    "Bras - grand",
+    "Bras - petit x3",
+    "PV - petit",
+]
+
+if couleur not in ["jaune", "gris"]:
+    card_spec.symbol_1 = st.sidebar.checkbox("Symbole 1", value=False)
+    if card_spec.symbol_1:
+        card_spec.first_symbol = st.sidebar.selectbox("Symbole 1", symbols)
+        # a = st.sidebar.slider("Décalage position horizontale", min_value=0, max_value=1)
+        # b = st.sidebar.slider("Décalage position verticale", min_value=0, max_value=1)
+        # card_spec.first_symbol_position = (a, b)
+if couleur in ["violet", "bleu"] and card_spec.symbol_1:
+    card_spec.symbol_2 = st.sidebar.checkbox("Symbole 2", value=False)
+    if card_spec.symbol_2:
+        card_spec.second_symbol = st.sidebar.selectbox("Symbole 2", symbols)
+        # second_symbol_position = (0, 0)
+if couleur == "bleu" and card_spec.symbol_2:
+    card_spec.symbol_3 = st.sidebar.checkbox("Symbole 3", value=False)
+    if card_spec.symbol_3:
+        card_spec.third_symbol = st.sidebar.selectbox("Symbole 3", symbols)
+        # second_symbol_position = (0, 0)
 
 card_spec.subtext = st.sidebar.text_area(
     "Texte secondaire de la carte", value="« Citation facultative »"
@@ -128,21 +168,19 @@ with tab1:
             "Changer la taille de la photo", min_value=100, max_value=300, value=100
         )
 
-        new_x, new_y = get_resized_dimensions(
-            card_spec.illustration_path, card_spec.size
-        )
+        new_x, new_y = get_resized_dimensions(card_spec)
         if card_spec.size > 100:
             card_spec.horizon = st.slider(
                 "Déplacer photo horizontalement",
                 min_value=0,
-                max_value=max(new_x - WIDTH + offset, 1),
+                max_value=max(new_x - card_spec.WIDTH + offset, 1),
                 value=0,
             )
-        if new_y > int(0.69 * HEIGHT) - offset:
+        if new_y > int(0.69 * card_spec.HEIGHT) - offset:
             card_spec.vertical = st.slider(
                 "Déplacer photo verticalement",
                 min_value=0,
-                max_value=max(new_y - int(0.69 * HEIGHT) + offset, 1),
+                max_value=max(new_y - int(0.69 * card_spec.HEIGHT) + offset, 1),
                 value=0,
             )
 
