@@ -116,7 +116,7 @@ card_spec.main_text = st.sidebar.text_area(
 ## rouge : 1 seul symbole
 ## bleu : touttttttt (3 symboles)
 
-symbols = [
+symbols_1 = [
     "PO - grand",
     "PO - petit",
     "Botte - grand",
@@ -126,27 +126,57 @@ symbols = [
     "Competence - petit",
     "Coeur - grand",
     "Coeur - petit",
-    "Bras - grand",
+    "Bras - petit",
     "Bras - petit x3",
-    "PV - petit",
+    "Point Victoire - petit",
+]
+
+symbols_2 = [
+    "PO - grand",
+    "PO - petit",
+    "Botte - petit",
+    "Competence - petit",
+    "Coeur - grand",
+    "Coeur - petit",
+    "Bras - petit",
+    "Bras - petit x3",
+    "Point Victoire - petit",
+]
+
+symbols_3 = [
+    "PO - petit",
+    "Coeur - petit",
+    "Bras - petit x3",
 ]
 
 if couleur not in ["jaune", "gris"]:
     card_spec.symbol_1 = st.sidebar.checkbox("Symbole 1", value=False)
     if card_spec.symbol_1:
-        card_spec.first_symbol = st.sidebar.selectbox("Symbole 1", symbols)
-        # a = st.sidebar.slider("Décalage position horizontale", min_value=0, max_value=1)
-        # b = st.sidebar.slider("Décalage position verticale", min_value=0, max_value=1)
-        # card_spec.first_symbol_position = (a, b)
+        card_spec.first_symbol = st.sidebar.selectbox("Symbole 1", symbols_1)
+        a = st.sidebar.slider(
+            "Décalage position horizontale",
+            min_value=-card_spec.WIDTH // 2,
+            max_value=card_spec.WIDTH // 2,
+            value=0,
+            label_visibility="collapsed",
+        )
+        b = st.sidebar.slider(
+            "Décalage position verticale",
+            min_value=-100,
+            max_value=140,
+            value=0,
+            label_visibility="collapsed",
+        )
+        card_spec.first_symbol_position = (a, b)
 if couleur in ["violet", "bleu"] and card_spec.symbol_1:
     card_spec.symbol_2 = st.sidebar.checkbox("Symbole 2", value=False)
     if card_spec.symbol_2:
-        card_spec.second_symbol = st.sidebar.selectbox("Symbole 2", symbols)
+        card_spec.second_symbol = st.sidebar.selectbox("Symbole 2", symbols_2)
         # second_symbol_position = (0, 0)
 if couleur == "bleu" and card_spec.symbol_2:
     card_spec.symbol_3 = st.sidebar.checkbox("Symbole 3", value=False)
     if card_spec.symbol_3:
-        card_spec.third_symbol = st.sidebar.selectbox("Symbole 3", symbols)
+        card_spec.third_symbol = st.sidebar.selectbox("Symbole 3", symbols_3)
         # second_symbol_position = (0, 0)
 
 card_spec.subtext = st.sidebar.text_area(

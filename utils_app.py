@@ -49,6 +49,21 @@ ressource_dict = {
     "Compétence": "skill",
 }
 
+symbol_pics = {
+    "PO - grand": "coin-big",
+    "PO - petit": "coin-mini",
+    "Botte - grand": "boot-big",
+    "Botte - grand x2": "boot-big-2",
+    "Botte - petit": "boot-mini",
+    "Competence - grand": "comp-big",
+    "Competence - petit": "comp-mini",
+    "Coeur - grand": "heart-big",
+    "Coeur - petit": "heart-mini",
+    "Bras - petit": "strong-mini",
+    "Bras - petit x3": "strong-mini-3",
+    "Point Victoire - petit": "vict-big",
+}
+
 
 class Card:
     BASECARD = Image.open("docs/images/basic-template.png")
@@ -219,7 +234,7 @@ def make_card(card_spec: Card):
     card.paste(resized_illustration, (-horizon + offset // 2, -vertical + offset // 2))
     card.paste(card_spec.BASECARD, (0, 0), card_spec.BASECARD)
 
-    bandeau = Image.open(f"docs/images/bandeau-{card_spec.bandeau_couleur}.png")
+    bandeau = Image.open(f"docs/images/bandeaux/{card_spec.bandeau_couleur}.png")
     card.paste(bandeau, (0, 0), bandeau)
 
     card_name = card_spec.card_name
@@ -294,30 +309,28 @@ def make_card(card_spec: Card):
                 font=FONT_TOKEN,
             )
 
-        if card_spec.ressource_1:
-            first_ressource = card_spec.first_ressource
-            first_rsrc = Image.open(
-                f"docs/images/n1-{ressource_dict.get(first_ressource)}.png"
-            )
-            if card_spec.value_skill == "0+":
-                first_rsrc = Image.open(
-                    f"docs/images/n1-{ressource_dict.get(first_ressource)}-plus.png"
-                )
-                card_spec.value_skill = 0
-
         if card_spec.ressource_2:
             scd_rsrc = Image.open(
-                f"docs/images/n2-{ressource_dict.get(card_spec.second_ressource)}.png"
+                f"docs/images/ressources/n2-{ressource_dict.get(card_spec.second_ressource)}.png"
             )
             card.paste(scd_rsrc, (0, 0), scd_rsrc)
 
         if card_spec.ressource_3:
             third_rsrc = Image.open(
-                f"docs/images/n3-{ressource_dict.get(card_spec.third_ressource)}.png"
+                f"docs/images/ressources/n3-{ressource_dict.get(card_spec.third_ressource)}.png"
             )
             card.paste(third_rsrc, (0, 0), third_rsrc)
 
         if card_spec.ressource_1:
+            first_ressource = card_spec.first_ressource
+            first_rsrc = Image.open(
+                f"docs/images/ressources/n1-{ressource_dict.get(first_ressource)}.png"
+            )
+            if card_spec.value_skill == "0+":
+                first_rsrc = Image.open(
+                    f"docs/images/ressources/n1-{ressource_dict.get(first_ressource)}-plus.png"
+                )
+                card_spec.value_skill = 0
             card.paste(first_rsrc, (0, 0), first_rsrc)
             if first_ressource == "Compétence":
                 text_skill = str(card_spec.value_skill)
@@ -357,6 +370,24 @@ def make_card(card_spec: Card):
         if card_spec.horde:
             horde_image = Image.open("docs/images/horde-parents.png")
             card.paste(horde_image, (0, 0), horde_image)
+
+    if card_spec.symbol_1:
+        first_symb = Image.open(
+            f"docs/images/symbols/{symbol_pics.get(card_spec.first_symbol)}.png"
+        )
+        card.paste(first_symb, card_spec.first_symbol_position, first_symb)
+
+    if card_spec.symbol_2:
+        scd_symb = Image.open(
+            f"docs/images/symbols/{symbol_pics.get(card_spec.second_symbol)}.png"
+        )
+        card.paste(scd_symb, (0, 0), scd_symb)
+
+    if card_spec.symbol_3:
+        third_symb = Image.open(
+            f"docs/images/symbols/{symbol_pics.get(card_spec.third_symbol)}.png"
+        )
+        card.paste(third_symb, (0, 0), third_symb)
 
     main_text = card_spec.main_text
     danger_offset = 45 if card_spec.appear or card_spec.danger else 0
