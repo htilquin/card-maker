@@ -92,15 +92,18 @@ class Card:
     second_ressource = None
     ressource_3 = False
     third_ressource = None
-    symbol_1 = False
+    use_first_symbol = False
     first_symbol = None
     first_symbol_position = (0, 0)
-    symbol_2 = False
+    first_symbol_text = None
+    use_second_symbol = False
     second_symbol = None
     second_symbol_position = (0, 0)
-    symbol_3 = False
+    second_symbol_text = None
+    use_third_symbol = False
     third_symbol = None
     third_symbol_position = (0, 0)
+    third_symbol_text = None
     appear = False
     text_appear = ""
     danger = False
@@ -134,15 +137,18 @@ class Card:
             "second_ressource": self.second_ressource,
             "ressource_3": self.ressource_3,
             "third_ressource": self.third_ressource,
-            "symbol_1": self.symbol_1,
+            "use_first_symbol": self.use_first_symbol,
             "first_symbol": self.first_symbol,
             "first_symbol_position": self.first_symbol_position,
-            "symbol_2": self.symbol_2,
+            "first_symbol_text": self.first_symbol_text,
+            "use_second_symbol": self.use_second_symbol,
             "second_symbol": self.second_symbol,
             "second_symbol_position": self.second_symbol_position,
-            "symbol_3": self.symbol_3,
+            "second_symbol_text": self.second_symbol_text,
+            "use_third_symbol": self.use_third_symbol,
             "third_symbol": self.third_symbol,
             "third_symbol_position": self.third_symbol_position,
+            "third_symbol_text": self.third_symbol_text,
             "appear": self.appear,
             "text_appear": self.text_appear,
             "danger": self.danger,
@@ -176,15 +182,18 @@ class Card:
         self.second_ressource = data.get("second_ressource")
         self.ressource_3 = data.get("ressource_3")
         self.third_ressource = data.get("third_ressource")
-        self.symbol_1 = data.get("symbol_1")
+        self.use_first_symbol = data.get("use_first_symbol")
         self.first_symbol = data.get("first_symbol")
         self.first_symbol_position = data.get("first_symbol_position")
-        self.symbol_2 = data.get("symbol_2")
+        self.first_symbol_text = data.get("first_symbol_text")
+        self.use_second_symbol = data.get("use_second_symbol")
         self.second_symbol = data.get("second_symbol")
         self.second_symbol_position = data.get("second_symbol_position")
-        self.symbol_3 = data.get("symbol_3")
+        self.second_symbol_text = data.get("second_symbol_text")
+        self.use_third_symbol = data.get("use_third_symbol")
         self.third_symbol = data.get("third_symbol")
         self.third_symbol_position = data.get("third_symbol_position")
+        self.third_symbol_text = data.get("third_symbol_text")
         self.appear = data.get("appear")
         self.text_appear = data.get("text_appear")
         self.danger = data.get("danger")
@@ -371,23 +380,42 @@ def make_card(card_spec: Card):
             horde_image = Image.open("docs/images/horde-parents.png")
             card.paste(horde_image, (0, 0), horde_image)
 
-    if card_spec.symbol_1:
+    if card_spec.use_first_symbol:
         first_symb = Image.open(
             f"docs/images/symbols/{symbol_pics.get(card_spec.first_symbol)}.png"
         )
         card.paste(first_symb, card_spec.first_symbol_position, first_symb)
+        if card_spec.first_symbol_text is not None:
+            text_first_symbol = str(card_spec.first_symbol_text)
+            w, h = draw.textsize(text_first_symbol, font=FONT_CARD_TEXT)
+            symbol_offset = (card_spec.WIDTH / 2 - w / 2, card_spec.HEIGHT * 0.787)
+            print(symbol_offset)
+            draw.text(
+                tuple(
+                    map(
+                        lambda i, j: i + j,
+                        card_spec.first_symbol_position,
+                        symbol_offset,
+                    )
+                ),
+                text=text_first_symbol,
+                align="center",
+                fill="black",
+                font=FONT_CARD_TEXT,
+                # spacing=12,
+            )
 
-    if card_spec.symbol_2:
+    if card_spec.use_second_symbol:
         scd_symb = Image.open(
             f"docs/images/symbols/{symbol_pics.get(card_spec.second_symbol)}.png"
         )
-        card.paste(scd_symb, (0, 0), scd_symb)
+        card.paste(scd_symb, card_spec.second_symbol_position, scd_symb)
 
-    if card_spec.symbol_3:
+    if card_spec.use_third_symbol:
         third_symb = Image.open(
             f"docs/images/symbols/{symbol_pics.get(card_spec.third_symbol)}.png"
         )
-        card.paste(third_symb, (0, 0), third_symb)
+        card.paste(third_symb, card_spec.third_symbol_position, third_symb)
 
     main_text = card_spec.main_text
     danger_offset = 45 if card_spec.appear or card_spec.danger else 0

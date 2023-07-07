@@ -110,12 +110,6 @@ card_spec.main_text = st.sidebar.text_area(
     "Texte principal de la carte", value="Votre texte ICI"
 )
 
-## Ajouts de symboles
-## jaune et gris : pas de symboles
-## violet : 2 symboles max
-## rouge : 1 seul symbole
-## bleu : touttttttt (3 symboles)
-
 symbols_1 = [
     "PO - grand",
     "PO - petit",
@@ -149,35 +143,90 @@ symbols_3 = [
     "Bras - petit x3",
 ]
 
+symbols_text = [
+    "PO - grand",
+    "PO - petit",
+    "Competence - grand",
+    "Competence - petit",
+    "Point Victoire - petit",
+]
+
 if couleur not in ["jaune", "gris"]:
-    card_spec.symbol_1 = st.sidebar.checkbox("Symbole 1", value=False)
-    if card_spec.symbol_1:
+    card_spec.use_first_symbol = st.sidebar.checkbox("Symbole 1", value=False)
+    if card_spec.use_first_symbol:
         card_spec.first_symbol = st.sidebar.selectbox("Symbole 1", symbols_1)
-        a = st.sidebar.slider(
-            "Décalage position horizontale",
+        hor_1 = st.sidebar.slider(
+            "Décalage position horizontale 1",
             min_value=-card_spec.WIDTH // 2,
             max_value=card_spec.WIDTH // 2,
             value=0,
             label_visibility="collapsed",
         )
-        b = st.sidebar.slider(
-            "Décalage position verticale",
+        ver_1 = st.sidebar.slider(
+            "Décalage position verticale 1",
             min_value=-100,
             max_value=140,
             value=0,
             label_visibility="collapsed",
         )
-        card_spec.first_symbol_position = (a, b)
-if couleur in ["violet", "bleu"] and card_spec.symbol_1:
-    card_spec.symbol_2 = st.sidebar.checkbox("Symbole 2", value=False)
-    if card_spec.symbol_2:
+        card_spec.first_symbol_position = (hor_1, ver_1)
+        if card_spec.first_symbol in symbols_text:
+            card_spec.first_symbol_text = st.sidebar.select_slider(
+                "Texte symbole 1",
+                options=[1, 2, 3, 4, 5, 6, 7, 8, "?"],
+                value=1,
+            )
+
+if couleur in ["violet", "bleu"] and card_spec.use_first_symbol:
+    card_spec.use_second_symbol = st.sidebar.checkbox("Symbole 2", value=False)
+    if card_spec.use_second_symbol:
         card_spec.second_symbol = st.sidebar.selectbox("Symbole 2", symbols_2)
-        # second_symbol_position = (0, 0)
-if couleur == "bleu" and card_spec.symbol_2:
-    card_spec.symbol_3 = st.sidebar.checkbox("Symbole 3", value=False)
-    if card_spec.symbol_3:
+        hor_2 = st.sidebar.slider(
+            "Décalage position horizontale 2",
+            min_value=-card_spec.WIDTH // 2,
+            max_value=card_spec.WIDTH // 2,
+            value=0,
+            label_visibility="collapsed",
+        )
+        ver_2 = st.sidebar.slider(
+            "Décalage position verticale 2",
+            min_value=-100,
+            max_value=140,
+            value=0,
+            label_visibility="collapsed",
+        )
+        card_spec.second_symbol_position = (hor_2, ver_2)
+        if card_spec.second_symbol in [symbols_text]:
+            card_spec.second_symbol_text = st.sidebar.select_slider(
+                "Texte symbole 2",
+                options=[1, 2, 3, 4, 5, 6, 7, 8, "?"],
+                value=1,
+            )
+if couleur == "bleu" and card_spec.use_second_symbol:
+    card_spec.use_third_symbol = st.sidebar.checkbox("Symbole 3", value=False)
+    if card_spec.use_third_symbol:
         card_spec.third_symbol = st.sidebar.selectbox("Symbole 3", symbols_3)
-        # second_symbol_position = (0, 0)
+        hor_3 = st.sidebar.slider(
+            "Décalage position horizontale 3",
+            min_value=-card_spec.WIDTH // 2,
+            max_value=card_spec.WIDTH // 2,
+            value=0,
+            label_visibility="collapsed",
+        )
+        ver_3 = st.sidebar.slider(
+            "Décalage position verticale 3",
+            min_value=-100,
+            max_value=140,
+            value=0,
+            label_visibility="collapsed",
+        )
+        card_spec.third_symbol_position = (hor_3, ver_3)
+        if card_spec.third_symbol in [symbols_text]:
+            card_spec.third_symbol_text = st.sidebar.select_slider(
+                "Texte symbole 3",
+                options=[1, 2, 3, 4, 5, 6, 7, 8, "?"],
+                value=1,
+            )
 
 card_spec.subtext = st.sidebar.text_area(
     "Texte secondaire de la carte", value="« Citation facultative »"
