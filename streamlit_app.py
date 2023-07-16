@@ -232,7 +232,9 @@ card_spec.subtext = st.sidebar.text_area(
     "Texte secondaire de la carte", value="« Citation facultative »"
 )
 
-tab1, tab2, tab3 = st.tabs(["Voir la Carte", "Voir les Specs", "Charger Specs"])
+tab1, tab2, tab3, tab4 = st.tabs(
+    ["Voir la Carte", "Voir les Specs", "Charger Specs", "Fusionner les Specs"]
+)
 
 with tab1:
     with st.expander("Modifier la photo"):
@@ -280,17 +282,20 @@ with tab2:
     dict_of_spec = card_spec.to_dict()
     st.write(dict_of_spec)
     st.download_button(
-        "Download the specs", str(dict_of_spec), file_name=f"{card_spec.card_name}.txt"
+        "Download the specs",
+        json.dumps(dict_of_spec),
+        file_name=f"{card_spec.card_name}.json",
     )
 
 with tab3:
     uploaded_spec = st.file_uploader(
-        "Sélectionner le fichier contenant les specs (liste de dictionnaires)",
-        type=["txt"],
+        """Sélectionner le **fichier** contenant les specs au format json, 
+        doit être une liste même s'il n'y a qu'une carte !""",
+        type=["txt", "json"],
     )
 
     uploaded_pics = st.file_uploader(
-        "Sélectionner les photos correspondantes : nom de la photo = illustration_path.",
+        "Sélectionner les **photos** correspondantes : nom de la photo = illustration_path.",
         accept_multiple_files=True,
     )
 
@@ -298,13 +303,13 @@ with tab3:
 
     if uploaded_spec and uploaded_pics:
         the_specs = json.loads(uploaded_spec.read())
-        sorted_specs = sorted(the_specs, key=lambda d: d["illustration_path"])
+        sorted_specs = sorted(the_specs)
 
         with BytesIO() as buffer:
             with zipfile.ZipFile(buffer, "w") as zipfile:
                 # for specs in the_specs["cards"]:
                 for specs, photo in zip(sorted_specs, sorted_pics):
-                    print(specs["illustration_path"], photo.name)
+                    print(specs["illustration_path"])  # , photo.name
                     card_from_spec = Card()
                     card_from_spec.from_dict(specs)
                     card_done = make_card(card_from_spec)
@@ -319,3 +324,6 @@ with tab3:
             btn = st.download_button(
                 label="Download ZIP", data=buffer, file_name="file.zip"
             )
+
+with tab4:
+    pass
