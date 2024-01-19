@@ -307,14 +307,14 @@ def make_card(card_spec: Card):
                 card.paste(cost_logo, (0, 0), cost_logo)
             text_cost = str(card_spec.cost_value)
             draw.text(
-                (card_spec.WIDTH - 53 - 1, card_spec.HEIGHT - 25 - 1),
+                (card_spec.WIDTH - 50 - 1, card_spec.HEIGHT - 50 - 1),
                 text=text_cost,
                 fill=(0, 0, 0, 128),
                 font=FONT_TOKEN,
                 anchor="mm",
             )
             draw.text(
-                (card_spec.WIDTH - 53, card_spec.HEIGHT - 25),
+                (card_spec.WIDTH - 50, card_spec.HEIGHT - 50),
                 text=text_cost,
                 fill="white",
                 font=FONT_TOKEN,
