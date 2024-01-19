@@ -247,30 +247,31 @@ def make_card(card_spec: Card):
     card.paste(bandeau, (0, 0), bandeau)
 
     card_name = card_spec.card_name
-    w, _ = draw.textsize(card_name, font=FONT_CARD_NAME)
     draw.text(
-        ((card_spec.WIDTH - w) / 2 - 1, 45 - 1),
+        (card_spec.WIDTH / 2 - 1, 70 - 1),
         text=card_name,
         fill="black",
         font=FONT_CARD_NAME,
+        anchor="mm",
     )
     draw.text(
-        ((card_spec.WIDTH - w) / 2, 45),
+        (card_spec.WIDTH / 2, 70),
         text=card_name,
         fill="white",
         font=FONT_CARD_NAME,
+        anchor="mm",
     )
 
     if card_spec.card_subtitle:
         subtitle = Image.open("docs/images/sous-titre.png")
         card.paste(subtitle, (0, 0), subtitle)
         subtitle_text = card_spec.subtitle_text
-        w, _ = draw.textsize(subtitle_text, font=FONT_CARD_TYPE)
         draw.text(
-            ((card_spec.WIDTH - w) / 2, 94),
+            (card_spec.WIDTH / 2, 114),
             text=subtitle_text,
             fill="white",
             font=FONT_CARD_TYPE,
+            anchor="mm",
         )
 
     if card_spec.force:
@@ -285,18 +286,19 @@ def make_card(card_spec: Card):
             green_logo = Image.open("docs/images/jeton_vert.png")
             card.paste(green_logo, (0, 0), green_logo)
             text_green_token = str(card_spec.value_pts_victoire)
-            w, h = draw.textsize(text_green_token, font=FONT_TOKEN)
             draw.text(
-                (card_spec.WIDTH - w / 2 - 59 - 1, h - 1),
+                (card_spec.WIDTH - 58 - 1, 58 - 1),
                 text=text_green_token,
                 fill=(0, 0, 0, 128),
                 font=FONT_TOKEN,
+                anchor="mm",
             )
             draw.text(
-                (card_spec.WIDTH - w / 2 - 59, h),
+                (card_spec.WIDTH - 58, 58),
                 text=text_green_token,
                 fill="white",
                 font=FONT_TOKEN,
+                anchor="mm",
             )
 
         if card_spec.cost:
@@ -304,18 +306,19 @@ def make_card(card_spec: Card):
                 cost_logo = Image.open("docs/images/cost-corner.png")
                 card.paste(cost_logo, (0, 0), cost_logo)
             text_cost = str(card_spec.cost_value)
-            w, h = draw.textsize(text_cost, font=FONT_TOKEN)
             draw.text(
-                (card_spec.WIDTH - w / 2 - 52 - 1, card_spec.HEIGHT - h / 2 - 55),
+                (card_spec.WIDTH - 53 - 1, card_spec.HEIGHT - 25 - 1),
                 text=text_cost,
                 fill=(0, 0, 0, 128),
                 font=FONT_TOKEN,
+                anchor="mm",
             )
             draw.text(
-                (card_spec.WIDTH - w / 2 - 52, card_spec.HEIGHT - h / 2 - 55),
+                (card_spec.WIDTH - 53, card_spec.HEIGHT - 25),
                 text=text_cost,
                 fill="white",
                 font=FONT_TOKEN,
+                anchor="mm",
             )
 
         if card_spec.ressource_2:
@@ -343,19 +346,19 @@ def make_card(card_spec: Card):
             card.paste(first_rsrc, (0, 0), first_rsrc)
             if first_ressource == "Compétence":
                 text_skill = str(card_spec.value_skill)
-                w, h = draw.textsize(text_skill, font=FONT_SKILL)
                 draw.text(
-                    (70 - w / 2, h / 2 + 120),
+                    (72, 160),
                     text=text_skill,
                     fill=(0, 0, 0, 255),
                     font=FONT_SKILL,
+                    anchor="mm",
                 )
 
     if card_spec.appear:
         appear_image = Image.open("docs/images/apparition.png")
         card.paste(appear_image, (0, 0), appear_image)
         text_appear = card_spec.text_appear
-        _, h = draw.textsize(text_appear, font=FONT_CARD_APPEAR)
+        h = 1
         draw.text(
             (252, 594 - h / 2),
             text=text_appear,
@@ -368,7 +371,7 @@ def make_card(card_spec: Card):
             danger_image = Image.open("docs/images/danger.png")
             card.paste(danger_image, (0, 0), danger_image)
             text_danger = card_spec.text_danger
-            _, h = draw.textsize(text_danger, font=FONT_CARD_APPEAR)
+            h = 1
             draw.text(
                 (185, 594 - h / 2),
                 text=text_danger,
@@ -387,9 +390,7 @@ def make_card(card_spec: Card):
         card.paste(first_symb, card_spec.first_symbol_position, first_symb)
         if card_spec.first_symbol_text is not None:
             text_first_symbol = str(card_spec.first_symbol_text)
-            w, h = draw.textsize(text_first_symbol, font=FONT_CARD_TEXT)
-            symbol_offset = (card_spec.WIDTH / 2 - w / 2, card_spec.HEIGHT * 0.787)
-            print(symbol_offset)
+            symbol_offset = (card_spec.WIDTH / 2, card_spec.HEIGHT * 0.787 + 17 )
             draw.text(
                 tuple(
                     map(
@@ -403,6 +404,7 @@ def make_card(card_spec: Card):
                 fill="black",
                 font=FONT_CARD_TEXT,
                 # spacing=12,
+                anchor="mm",
             )
 
     if card_spec.use_second_symbol:
@@ -419,24 +421,23 @@ def make_card(card_spec: Card):
 
     main_text = card_spec.main_text
     danger_offset = 45 if card_spec.appear or card_spec.danger else 0
-    w, h = draw.textsize(main_text, font=FONT_CARD_TEXT)
     draw.text(
-        ((card_spec.WIDTH - w) / 2, 680 - h / 2 + danger_offset),
+        (card_spec.WIDTH / 2, 680 + danger_offset),
         text=main_text,
         align="center",
         fill="black",
         font=FONT_CARD_TEXT,
         spacing=12,
+        anchor="mm"
     )
 
     subtext = card_spec.subtext
     acquire_offset = 55 if card_spec.acquire else 0
-    _, h = draw.textsize(subtext, font=FONT_CARD_LEGEND)
     draw.text(
-        (55, card_spec.HEIGHT - h - 60 - acquire_offset),
+        (55, card_spec.HEIGHT - 80 - acquire_offset),
         text=subtext,
         # align="center",
-        # anchor="rm",
+        anchor="lm",
         fill="black",
         font=FONT_CARD_LEGEND,
     )
